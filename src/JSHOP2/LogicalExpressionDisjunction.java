@@ -34,9 +34,15 @@ public class LogicalExpressionDisjunction extends LogicalExpression
   public LogicalExpressionDisjunction(Vector leIn)
   {
     le = new LogicalExpression[leIn.size()];
+    hasTemporalOps = false;
 
     for (int i = 0; i < leIn.size(); i++)
+    {
       le[i] = (LogicalExpression)leIn.get(i);
+      
+      if(le[i].hasTemporalOperators())
+      	hasTemporalOps = true;
+    }
 
     cnt = getClassCnt();
   }

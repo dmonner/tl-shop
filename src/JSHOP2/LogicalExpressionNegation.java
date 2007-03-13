@@ -21,6 +21,7 @@ public class LogicalExpressionNegation extends LogicalExpression
   public LogicalExpressionNegation(LogicalExpression leIn)
   {
     le = leIn;
+    hasTemporalOps = le.hasTemporalOperators();
   }
 
   /** This function produces Java code that implements the class any object of
