@@ -29,6 +29,9 @@ public class LogicalExpressionForAll extends LogicalExpression
   {
     premise = premiseIn;
     consequence = consequenceIn;
+    
+    hasTemporalOps = premise.hasTemporalOperators() || 
+    	consequence.hasTemporalOperators();
   }
 
   /** This function produces Java code that implements the classes any object

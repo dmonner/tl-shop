@@ -247,6 +247,13 @@ public class JSHOP2
               //-- If the operator is applicable, apply it, and,
               if (v.o[v.j].apply(v.nextB, state, v.delAdd))
               {
+              	
+              	
+              	// TODO: the apply() method above just changed the world state;
+              	//   need to add in LTL checks here - should do it in the
+              	//   if() above with a method call
+              	
+              	
                 //-- Add the instance of the operator that achieved this task
                 //-- to the beginning of the plan, remembering how much it
                 //-- cost.

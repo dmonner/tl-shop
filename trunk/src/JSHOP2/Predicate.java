@@ -143,7 +143,6 @@ public class Predicate extends CompileTimeObject
   */
   public int getHead()
   {
-    //-- TODO: What to do when Predicate is a variable?
     return head;
   }
 
@@ -154,7 +153,6 @@ public class Predicate extends CompileTimeObject
   */
   public Term getParam()
   {
-    //-- TODO: What to do when Predicate is a variable?
     return param;
   }
 
