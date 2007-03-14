@@ -83,6 +83,11 @@ class InternalVars
      *  atom that has been chosen to be achieved next.
     */
     TaskList tl;
+    
+    /** The control rules that apply to the current state. These are maintained
+     *  locally for backtracking purposes.
+     */
+    LogicalExpression c;
 }
 
 /** This class is the implementation of the JSHOP2 algorithm.
@@ -113,6 +118,10 @@ public class JSHOP2
   /** The current state of the world.
   */
   private static State state;
+  
+  /** The current control rules to be applied to all future states.
+   */
+  private static LogicalExpression rules;
 
   /** The task list to be achieved.
   */

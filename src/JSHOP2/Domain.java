@@ -55,6 +55,12 @@ public abstract class Domain
   */
   protected String[] problemConstants;
 
+  /** The <code>LogicalExpression</code> (which generally includes temporal
+   *  operators) consisting of the conjunction of the control rules for this
+   *  domain.
+   */
+  protected LogicalExpression controlRules;
+  
   /** This function returns the axioms in this domain.
    *
    *  @return

@@ -46,6 +46,14 @@ public class LogicalExpressionConjunction extends LogicalExpression
 
     cnt = getClassCnt();
   }
+ 
+ /**
+   * @return the list of expressions conjuncted in this expression.
+   */
+  public LogicalExpression[] getConstituents()
+  {
+  	return le;
+  }
 
   /** This function produces Java code that implements the classes any object
    *  of which can be used at run time to represent the conjuncts of this
