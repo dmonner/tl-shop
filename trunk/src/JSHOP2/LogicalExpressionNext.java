@@ -27,6 +27,14 @@ public class LogicalExpressionNext extends LogicalExpression
 		le = leIn;
 		hasTemporalOps = true;
 	}
+	
+	/**
+	 * @return the logical expression which this "next" operator affects
+	 */
+	public LogicalExpression getOperand()
+	{
+		return le;
+	}
 
 	/**
 	 * This function produces Java code that implements the class any object of
