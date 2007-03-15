@@ -40,6 +40,20 @@ public class LogicalExpressionUntil extends LogicalExpression
 
 		hasTemporalOps = true;
 	}
+	
+	/**
+	 * @return the first operand of this "until" operator
+	 */
+	public LogicalExpression getFirstOperand() {
+		return firstExpression;
+	}
+	
+	/**
+	 * @return the second operand of this "until" operator
+	 */
+	public LogicalExpression getSecondOperand() {
+		return secondExpression;
+	}
 
 	/**
 	 * This function produces Java code that implements the classes any object of

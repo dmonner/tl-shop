@@ -23,6 +23,13 @@ public class LogicalExpressionNegation extends LogicalExpression
     le = leIn;
     hasTemporalOps = le.hasTemporalOperators();
   }
+  
+  /**
+	* @return the logical expression which this negation affects.
+	*/
+  public LogicalExpression getOperand() {
+	  return le;
+  }
 
   /** This function produces Java code that implements the class any object of
    *  which can be used at run time to represent the logical expression this
