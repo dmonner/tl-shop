@@ -33,6 +33,16 @@ public class LogicalExpressionForAll extends LogicalExpression
     hasTemporalOps = premise.hasTemporalOperators() || 
     	consequence.hasTemporalOperators();
   }
+  
+  public LogicalExpression getPremise()
+  {
+  	return premise;
+  }
+  
+  public LogicalExpression getConsequence()
+  {
+  	return consequence;
+  }
 
   /** This function produces Java code that implements the classes any object
    *  of which can be used at run time to represent the premise and the

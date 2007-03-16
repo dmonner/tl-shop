@@ -29,6 +29,14 @@ public class LogicalExpressionEventually extends LogicalExpression
 	}
 
 	/**
+	 * @return the logical expression which this "eventually" operator affects
+	 */
+	public LogicalExpression getOperand()
+	{
+		return le;
+	}
+
+	/**
 	 * This function produces Java code that implements the class any object of
 	 * which can be used at run time to represent the logical expression that must
 	 * eventually hold.
