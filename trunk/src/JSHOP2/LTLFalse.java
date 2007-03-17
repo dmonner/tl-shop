@@ -12,31 +12,20 @@ package JSHOP2;
  *         href="http://www.cs.umd.edu/~dmonner">http://www.cs.umd.edu/~dmonner</a>
  * @version 1.0.3
  */
-public class LogicalExpressionFalse extends LogicalExpression {
+public class LTLFalse extends LTLExpression {
 
-	private static LogicalExpressionFalse INSTANCE = new LogicalExpressionFalse();
+	private static LTLFalse INSTANCE = new LTLFalse();
 
-	private LogicalExpressionFalse() {}
+	private LTLFalse() {}
 
-	public static LogicalExpressionFalse getInstance() 
+	public static LTLFalse getInstance() 
 	{
 		return INSTANCE;
 	}
 
-	@Override
-	public String getInitCode() 
-	{
-		return "";
-	}
-
-	@Override
-	protected void propagateVarCount(int varCountIn) {}
-
-	@Override
 	public String toCode() 
 	{
-		// TODO fix toCode()
-		return "";
+		return "LTLFalse.getInstance()";
 	}
 
 }

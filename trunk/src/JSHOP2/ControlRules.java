@@ -18,7 +18,7 @@ public class ControlRules
 	 * @param f
 	 * @return
 	 */
-	public static LogicalExpression progress(State s, LogicalExpression f)
+	public static LTLExpression progress(State s, LTLExpression f)
 	{
 		// if there are temporal operators, we cannot evaluate the formula directly
 		if(f.hasTemporalOperators())
@@ -26,70 +26,102 @@ public class ControlRules
 			
 			// if the top operator is a conjunction
 			//   then this expression has the form: 
-			//     and{ f1, f2, ..., fn }
+			//     f1 and f2
 			//   and the formula to return is: 
-			//     and{ progress(s, f1), progress(s, f2), ..., progress(s, fn) }
-			if(f instanceof LogicalExpressionConjunction)
+			//     progress(s, f1) and progress(s, f2)
+			if(f instanceof LTLConjunction)
 			{
-				// get a list of the conjuncts
-				LogicalExpression[] fn = ((LogicalExpressionConjunction) f).getConstituents();
+				// get the operands of this conjunction
+				LTLExpression f1 = ((LTLConjunction) f).getFirstOperand();
+				LTLExpression f2 = ((LTLConjunction) f).getSecondOperand();
+
+				LTLExpression pf1 = progress(s, f1);
 				
-				// create a new vector to hold the progressed subexpressions
-				Vector v = new Vector(fn.length);
-				
-				// progress each of the subexpressions individually
-				for(int i = 0; i < fn.length; i++) 
+				// if progress(s, f1) evaluates to TRUE
+				if(pf1 instanceof LTLTrue)
 				{
-					// progress the subexpression
-					LogicalExpression p = progress(s, fn[i]);
-					
-					// if the progression evaluates to FALSE, then our entire conjunction
-					// is FALSE, so return FALSE.
-					if(p instanceof LogicalExpressionFalse)
-						return LogicalExpressionFalse.getInstance();
-					// if the progression evaluates to TRUE, then it is irrelevant to our
-					// conjunction, and can be removed.
-					// otherwise, we must add it to the new conjunction.
-					else if(!(p instanceof LogicalExpressionTrue))
-						v.add(p);
+					// then our formula simplifies to progress(s, f2)
+					return progress(s, f2);
 				}
-				
-				// recombine the conjuncts
-				return new LogicalExpressionConjunction(v);
+				// if progress(s, f1) evaluates to FALSE
+				else if(pf1 instanceof LTLFalse)
+				{
+					// then the entire conjunction is FALSE
+					return LTLFalse.getInstance();
+				}
+				// otherwise, see if we can simplify our formula by evaluating progress(s, f2)
+				else
+				{
+					LTLExpression pf2 = progress(s, f2);
+					
+					// if progress(s, f2) evaluation to TRUE
+					if(pf2 instanceof LTLTrue)
+					{
+						// then our formula simplifies to progress(s, f1)
+						return pf1;
+					}
+					// if progress(s, f2) evaluates to FALSE
+					else if(pf2 instanceof LTLFalse)
+					{
+						// then the entire conjunction is FALSE
+						return LTLFalse.getInstance();
+					}
+					// otherwise, our formula remains progress(s, f1) and progress(s, f2)
+					else
+					{
+						return new LTLConjunction(pf1, pf2);
+					}
+				}
 			}
 			
 			// if the top operator is a disjunction
 			//   then this expression has the form: 
-			//     or{ f1, f2, ..., fn }
+			//     f1 or f2
 			//   and the formula to return is: 
-			//     or{ progress(s, f1), progress(s, f2), ..., progress(s, fn) }
-			else if(f instanceof LogicalExpressionDisjunction)
+			//     progress(s, f1) or progress(s, f2)
+			else if(f instanceof LTLDisjunction)
 			{
-				// get a list of the disjuncts
-				LogicalExpression[] fn = ((LogicalExpressionDisjunction) f).getConstituents();
+				// get the operands of this disjunction
+				LTLExpression f1 = ((LTLDisjunction) f).getFirstOperand();
+				LTLExpression f2 = ((LTLDisjunction) f).getSecondOperand();
 
-				// create a new vector to hold the progressed subexpressions
-				Vector v = new Vector(fn.length);
+				LTLExpression pf1 = progress(s, f1);
 				
-				// progress each of the subexpressions individually
-				for(int i = 0; i < fn.length; i++) 
+				// if progress(s, f1) evaluates to TRUE
+				if(pf1 instanceof LTLTrue)
 				{
-					// progress the subexpression
-					LogicalExpression p = progress(s, fn[i]);
-					
-					// if the progression evaluates to TRUE, then our entire disjunction
-					// is TRUE, so return TRUE.
-					if(p instanceof LogicalExpressionTrue)
-						return LogicalExpressionTrue.getInstance();
-					// if the progression evaluates to FALSE, then it is irrelevant to our
-					// disjunction, and can be removed.
-					// otherwise, we must add it to the new disjunction.
-					else if(!(p instanceof LogicalExpressionFalse))
-						v.add(p);
+					// then the entire disjunction is TRUE
+					return LTLTrue.getInstance();
 				}
-				
-				// recombine the disjuncts
-				return new LogicalExpressionDisjunction(v);
+				// if progress(s, f1) evaluates to FALSE
+				else if(pf1 instanceof LTLFalse)
+				{
+					// then our formula simplifies to progress(s, f2)
+					return progress(s, f2);
+				}
+				// otherwise, see if we can simplify our formula by evaluating progress(s, f2)
+				else
+				{
+					LTLExpression pf2 = progress(s, f2);
+					
+					// if progress(s, f2) evaluates to TRUE
+					if(pf2 instanceof LTLTrue)
+					{
+						// then the entire disjunction is TRUE
+						return LTLTrue.getInstance();
+					}
+					// if progress(s, f2) evaluates to FALSE
+					else if(pf2 instanceof LTLFalse)
+					{
+						// then our formula simplifies to progress(s, f1)
+						return pf1;
+					}
+					// otherwise, our formula remains progress(s, f1) or progress(s, f2)
+					else
+					{
+						return new LTLDisjunction(pf1, pf2);
+					}
+				}
 			}
 			
 			// if the operator is a negation
@@ -97,30 +129,29 @@ public class ControlRules
 			//     not f1
 			//   and the formula to return is: 
 			//     not progress(s, f1)
-			else if(f instanceof LogicalExpressionNegation)
+			else if(f instanceof LTLNegation)
 			{
 				// get the operand of this negation
-				LogicalExpression f1 = ((LogicalExpressionNegation) f).getOperand();
+				LTLExpression f1 = ((LTLNegation) f).getOperand();
 				
-				// calculates progress(s, f1)
-				LogicalExpression pf1 = progress(s, f1);
+				LTLExpression pf1 = progress(s, f1);
 				
 				// if progress(s, f1) evaluates to TRUE
-				if(pf1 instanceof LogicalExpressionTrue)
+				if(pf1 instanceof LTLTrue)
 				{
 					// then the negation of progress(s, f1) is FALSE
-					return LogicalExpressionFalse.getInstance();
+					return LTLFalse.getInstance();
 				}
 				// if progress(s, f1) evaluates to FALSE
-				else if(pf1 instanceof LogicalExpressionFalse)
+				else if(pf1 instanceof LTLFalse)
 				{
 					// then the negation of progress(s, f1) is TRUE
-					return LogicalExpressionTrue.getInstance();
+					return LTLTrue.getInstance();
 				}
 				// otherwise we return the negated formula
 				else
 				{
-					return new LogicalExpressionNegation(pf1);
+					return new LTLNegation(pf1);
 				}
 			}
 			
@@ -129,10 +160,10 @@ public class ControlRules
 			//     next f1
 			//   and the formula to return is: 
 			//     f1
-			else if(f instanceof LogicalExpressionNext)
+			else if(f instanceof LTLNext)
 			{
 				// return the operand of this "next" operator
-				return ((LogicalExpressionNext) f).getOperand();
+				return ((LTLNext) f).getOperand();
 			}
 			
 			// if the operator is "until"
@@ -140,64 +171,57 @@ public class ControlRules
 			//     f1 until f2
 			//   and the formula to return is: 
 			//     progress(s, f2) | (progress(s, f1) & f)
-			else if(f instanceof LogicalExpressionUntil)
+			else if(f instanceof LTLUntil)
 			{
 				// get the operands of this "until" operator
-				LogicalExpression f1 = ((LogicalExpressionUntil) f).getFirstOperand();
-				LogicalExpression f2 = ((LogicalExpressionUntil) f).getSecondOperand();
+				LTLExpression f1 = ((LTLUntil) f).getFirstOperand();
+				LTLExpression f2 = ((LTLUntil) f).getSecondOperand();
 				
-				// calculate progress(s, f2)
-				LogicalExpression pf2 = progress(s, f2);
+				LTLExpression pf2 = progress(s, f2);
 				
 				// if progress(s, f2) is TRUE
-				if(pf2 instanceof LogicalExpressionTrue)
+				if(pf2 instanceof LTLTrue)
 				{
 					// then our formula reduces to TRUE
-					return LogicalExpressionTrue.getInstance();
+					return LTLTrue.getInstance();
 				}
 				// if progress(s, f2) is FALSE
-				else if(pf2 instanceof LogicalExpressionFalse)
+				else if(pf2 instanceof LTLFalse)
 				{
 					// then our formula simplifies to progress(s, f1) & f
-					LogicalExpression pf1 = progress(s, f1);
+					LTLExpression pf1 = progress(s, f1);
 					
 					// if progress(s, f1) is TRUE
-					if(pf1 instanceof LogicalExpressionTrue)
+					if(pf1 instanceof LTLTrue)
 					{
 						// then our formula simplifies to f
 						return f;
 					}
 					// if progress(s, f1) if FALSE
-					else if(pf1 instanceof LogicalExpressionFalse)
+					else if(pf1 instanceof LTLFalse)
 					{
 						// then our formula simplifies to FALSE
-						return LogicalExpressionFalse.getInstance();
+						return LTLFalse.getInstance();
 					}
 					// otherwise our formula is progress(s, f1) & f
 					else
 					{
-						Vector conjuncts = new Vector();
-						conjuncts.add(pf1);
-						conjuncts.add(f);
-						return new LogicalExpressionConjunction(conjuncts);
+						return new LTLConjunction(pf1, f);
 					}
 				}
 				// otherwise we may need to evaluate the whole formula
 				else
 				{
-					LogicalExpression pf1 = progress(s, f1);
+					LTLExpression pf1 = progress(s, f1);
 					
 					// if progress(s, f1) is TRUE
-					if(pf1 instanceof LogicalExpressionTrue)
+					if(pf1 instanceof LTLTrue)
 					{
 						// then our formula simplifies to progress(s, f2) | f
-						Vector disjuncts = new Vector();
-						disjuncts.add(pf2);
-						disjuncts.add(f);
-						return new LogicalExpressionDisjunction(disjuncts);						
+						return new LTLDisjunction(pf2, f);						
 					}
 					// if progress(s, f1) if FALSE
-					else if(pf1 instanceof LogicalExpressionFalse)
+					else if(pf1 instanceof LTLFalse)
 					{
 						// then our formula simplifies to progress(s, f2)
 						return pf2;
@@ -205,17 +229,7 @@ public class ControlRules
 					// otherwise we must evaluate the full formula, progress(s, f1) & f
 					else
 					{
-						// construct the conjunction: progress(s, f1) & f
-						Vector conjuncts = new Vector();
-						conjuncts.add(pf1);
-						conjuncts.add(f);
-						LogicalExpression conjunction = new LogicalExpressionConjunction(conjuncts);
-						
-						// construct the disjunction: progress(s, f2) | (progress(s, f1) & f)
-						Vector disjuncts = new Vector();
-						disjuncts.add(pf2);
-						disjuncts.add(conjunction);
-						return new LogicalExpressionDisjunction(disjuncts);
+						return new LTLDisjunction(pf2, new LTLConjunction(pf1, f));
 					}
 				}
 			}
@@ -225,22 +239,21 @@ public class ControlRules
 			//     eventually f1
 			//   and the formula to return is: 
 			//     progress(s, f1) | f
-			else if(f instanceof LogicalExpressionEventually)
+			else if(f instanceof LTLEventually)
 			{
 				// get the operands of this "eventually" operator
-				LogicalExpression f1 = ((LogicalExpressionEventually) f).getOperand();
+				LTLExpression f1 = ((LTLEventually) f).getOperand();
 				
-				// calculate progress(s, f1)
-				LogicalExpression pf1 = progress(s, f1);
+				LTLExpression pf1 = progress(s, f1);
 				
 				// if progress(s, f1) evaluates to TRUE,
-				if(pf1 instanceof LogicalExpressionTrue)
+				if(pf1 instanceof LTLTrue)
 				{
 					// then our formula simplifies to TRUE.
-					return LogicalExpressionTrue.getInstance();
+					return LTLTrue.getInstance();
 				}
 				// if progress(s, f1) evaluates to FALSE,
-				else if(pf1 instanceof LogicalExpressionFalse)
+				else if(pf1 instanceof LTLFalse)
 				{
 					// then our formula simplifies to f
 					return f;
@@ -249,10 +262,7 @@ public class ControlRules
 				else
 				{
 					// construct the disjunction: progress(s, f1) | f
-					Vector disjuncts = new Vector();
-					disjuncts.add(pf1);
-					disjuncts.add(f);
-					return new LogicalExpressionDisjunction(disjuncts);					
+					return new LTLDisjunction(pf1, f);					
 				}
 			}
 			
@@ -261,79 +271,78 @@ public class ControlRules
 			//     always f1
 			//   and the formula to return is: 
 			//     progress(s, f1) & f
-			else if(f instanceof LogicalExpressionAlways)
+			else if(f instanceof LTLAlways)
 			{
 				// get the operands of this "eventually" operator
-				LogicalExpression f1 = ((LogicalExpressionEventually) f).getOperand();
+				LTLExpression f1 = ((LTLEventually) f).getOperand();
 				
-				// calculate progress(s, f1)
-				LogicalExpression pf1 = progress(s, f1);
+				LTLExpression pf1 = progress(s, f1);
 				
 				// if progress(s, f1) evaluates to TRUE,
-				if(pf1 instanceof LogicalExpressionTrue)
+				if(pf1 instanceof LTLTrue)
 				{
 					// then our formula simplifies to f.
 					return f;
 				}
 				// if progress(s, f1) evaluates to FALSE,
-				else if(pf1 instanceof LogicalExpressionFalse)
+				else if(pf1 instanceof LTLFalse)
 				{
 					// then our formula simplifies to FALSE
-					return LogicalExpressionFalse.getInstance();
+					return LTLFalse.getInstance();
 				}
 				// otherwise our formula does not simplify at all
 				else
 				{
-					// construct the conjunction: progress(s, f1) & f
-					Vector conjuncts = new Vector();
-					conjuncts.add(pf1);
-					conjuncts.add(f);
-					return new LogicalExpressionConjunction(conjuncts);					
+					return new LTLConjunction(pf1, f);					
 				}
 			}
 			
 			// if the operator is "forall"
 			//   then this expression has the form: 
-			//     forall x (premise -> consequence)
+			//     forall x (premise -> consequent)
 			//   (where "premise" is an atom that is true for only finitely many x)
 			//   and the formula to return is: 
-			//     not premise | progress(s, consequence) 
-			else if(f instanceof LogicalExpressionForAll)
+			//     not premise | progress(s, consequent) 
+			else if(f instanceof LTLForAll)
 			{
 				//FIXME: Not entirely sure how to proceed here. Experiment.
-				
-				
 				return null;
 			}
-			
-			// The following classes will never have hasTemporalOperators() true, so
-			// we need not deal with them here:
-			//   LogicalExpressionNil
-			//   LogicalExpressionAssign
-			//   LogicalExpressionAtomic
-			//   LogicalExpressionCall
-			
+		
+			// if the operator is "exists"
+			//   then this expression has the form: 
+			//     forall x (premise -> consequent)
+			//   (where "premise" is an atom that is true for only finitely many x)
+			//   and the formula to return is: 
+			//     not premise | progress(s, consequent) 
+			else if(f instanceof LTLForAll)
+			{
+				//FIXME: Not entirely sure how to proceed here. Experiment.
+				return null;
+			}
+		
 			// this should never happen
 			else 
 			{
 				//TODO: remove eventually (for debugging purposes)
-				//TODO: implement a "toString" for each LogicalExpression class to provide pretty prints.
+				//TODO: implement a "toString" for each LTLExpression class to provide pretty prints.
 				System.out.println(f);
 				System.out.println(f.getClass());
 				System.out.flush();
 				throw new IllegalArgumentException("Somehow hasTemporalOperators() returned true but the top operator was not in our list.");
 			}
 		}
+	
 		// this formula has no temporal operators
 		else
 		{
 			// if the current state entails this formula
-			if(entails(s, f))
+			if(entails(s, f)) 
 				// return "true"
-				return LogicalExpressionTrue.getInstance();
+				return LTLTrue.getInstance();
 			else 
 				// otherwise return "false"
-				return LogicalExpressionFalse.getInstance();
+				return LTLFalse.getInstance();
 		}
 	}
 	
@@ -342,7 +351,7 @@ public class ControlRules
 	 * @param expr
 	 * @return
 	 */
-	public static boolean entails(State s, LogicalExpression expr)
+	public static boolean entails(State s, LTLExpression expr)
 	{
 		//TODO: implement entails()
 		return true;
