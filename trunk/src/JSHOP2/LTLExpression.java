@@ -17,4 +17,10 @@ public abstract class LTLExpression extends CompileTimeObject
   {
     return hasTemporalOps;
   }
+  
+  /** Override toString() for pretty printing.
+   */
+  public String toString() {
+  	return toCode();
+  }
 }
