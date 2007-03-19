@@ -22,7 +22,7 @@ public class LTLExists extends LTLExpression
   	return premise;
   }
   
-  public LTLExpression getConsequence()
+  public LTLExpression getConsequent()
   {
   	return consequent;
   }

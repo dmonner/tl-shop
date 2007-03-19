@@ -2,28 +2,40 @@ package JSHOP2;
 
 public class LTLConjunction extends LTLExpression
 {
-  private LTLExpression firstOperand;
-  private LTLExpression secondOperand;
+  private LTLExpression[] conjuncts;
 
-  public LTLConjunction(LTLExpression first, LTLExpression second)
+  public LTLConjunction(LTLExpression[] conjunctsIn)
   {
-    firstOperand = first;
-    secondOperand = second;
-    hasTemporalOps = first.hasTemporalOperators() || second.hasTemporalOperators();
+    conjuncts = conjunctsIn;
+    hasTemporalOps = false;
+    
+    for(int i = 0; i < conjuncts.length; i++)
+    {
+    	if(conjuncts[i].hasTemporalOperators()) {
+    		hasTemporalOps = true;
+    		break;
+    	}
+    }
   }
   
-  public LTLExpression getFirstOperand()
+  public LTLExpression[] getConjuncts()
   {
-  	return firstOperand;
-  }
-
-	public LTLExpression getSecondOperand()
-  {
-  	return secondOperand;
+  	return conjuncts;
   }
 
 	public String toCode()
   {
-    return "new LTLConjunction(" + firstOperand.toCode() + ", " + secondOperand.toCode() +")";
+    String s = "new LTLConjunction(new LTLExpression[] {";
+    
+    for(int i = 0; i < conjuncts.length; i++) 
+    {
+    	s += conjuncts[i].toCode();
+    	if(i < conjuncts.length - 1)
+    		s += ", ";
+    }
+    
+    s += "})";
+    
+    return s;
   }
 }

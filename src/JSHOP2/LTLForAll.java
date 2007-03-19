@@ -22,7 +22,7 @@ public class LTLForAll extends LTLExpression
   	return premise;
   }
   
-  public LTLExpression getConsequence()
+  public LTLExpression getConsequent()
   {
   	return consequent;
   }

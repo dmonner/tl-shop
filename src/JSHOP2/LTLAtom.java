@@ -8,6 +8,11 @@ public class LTLAtom extends LTLExpression
   {
   	atom = logicalAtomIn;
   }
+  
+  public Predicate getAtom()
+  {
+  	return atom;
+  }
 
   public String toCode()
   {
