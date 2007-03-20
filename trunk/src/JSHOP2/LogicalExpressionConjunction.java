@@ -34,25 +34,11 @@ public class LogicalExpressionConjunction extends LogicalExpression
   public LogicalExpressionConjunction(Vector leIn)
   {
     le = new LogicalExpression[leIn.size()];
-    hasTemporalOps = false;
 
     for (int i = 0; i < leIn.size(); i++)
-    {
       le[i] = (LogicalExpression)leIn.get(i);
-      
-      if(le[i].hasTemporalOperators())
-      	hasTemporalOps = true;
-    }
 
     cnt = getClassCnt();
-  }
- 
- /**
-   * @return the list of expressions conjuncted in this expression.
-   */
-  public LogicalExpression[] getConstituents()
-  {
-  	return le;
   }
 
   /** This function produces Java code that implements the classes any object
