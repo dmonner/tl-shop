@@ -1,8 +1,7 @@
 package JSHOP2;
 
 /**
- * A logical expression that represents the value "false". Only useful during
- * the ControlRules.progress and ControlRules.entails methods.
+ * An expression in Linear Temporal Logic that represents the value "false".
  * 
  * There is only ever one instance of this class, since all "false" values are
  * equivalent. It is accessed with the getInstance() method.
@@ -18,11 +17,17 @@ public class LTLFalse extends LTLExpression {
 
 	private LTLFalse() {}
 
+	/**
+	 * @return the singleton instance of this class.
+	 */
 	public static LTLFalse getInstance() 
 	{
 		return INSTANCE;
 	}
 
+	/* (non-Javadoc)
+	 * @see JSHOP2.CompileTimeObject#toCode()
+	 */
 	public String toCode() 
 	{
 		return "LTLFalse.getInstance()";

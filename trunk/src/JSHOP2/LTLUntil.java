@@ -1,8 +1,8 @@
 package JSHOP2;
 
 /**
- * Each "until" term in a logical expression at compile time is represented as
- * an instance of this class.
+ * An instance of this class represents an expression in Linear Temporal Logic
+ * of the form "expr1 until expr2".
  * 
  * @author Derek Monner
  * @author <a
@@ -55,6 +55,11 @@ public class LTLUntil extends LTLExpression
 		return secondOperator;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see JSHOP2.CompileTimeObject#toCode()
+	 */
 	public String toCode()
 	{
 		return "new LTLUntil(" + firstOperand.toCode() + ", "

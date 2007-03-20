@@ -370,11 +370,10 @@ public class ControlRules
 			// for each valid value of binding
 			else if(f instanceof LTLForAll)
 			{
-				LTLExpression premise = ((LTLForAll) f).getPremise();
+				LTLAtom premise = ((LTLForAll) f).getPremise();
 				LTLExpression consequent = ((LTLForAll) f).getConsequent();
 
-				// assume the premise is atomic
-				Predicate atom = ((LTLAtom) premise).getAtom();
+				Predicate atom = premise.getAtom();
 
 				// get the state's iterator, a helper for s.nextBinding, below
 				MyIterator me = s.iterator(atom.getHead());
@@ -446,11 +445,10 @@ public class ControlRules
 			// for each valid value of binding
 			else if(f instanceof LTLExists)
 			{
-				LTLExpression premise = ((LTLExists) f).getPremise();
+				LTLAtom premise = ((LTLExists) f).getPremise();
 				LTLExpression consequent = ((LTLExists) f).getConsequent();
 
-				// assume the premise is atomic
-				Predicate atom = ((LTLAtom) premise).getAtom();
+				Predicate atom = premise.getAtom();
 
 				// get the state's iterator, a helper for s.nextBinding, below
 				MyIterator me = s.iterator(atom.getHead());
@@ -623,11 +621,10 @@ public class ControlRules
 		// if the top-level operator is forall
 		else if(f instanceof LTLForAll)
 		{
-			LTLExpression premise = ((LTLForAll) f).getPremise();
+			LTLAtom premise = ((LTLForAll) f).getPremise();
 			LTLExpression consequent = ((LTLForAll) f).getConsequent();
 
-			// assume the premise is atomic
-			Predicate atom = ((LTLAtom) premise).getAtom();
+			Predicate atom = premise.getAtom();
 
 			// get the state's iterator, a helper for s.nextBinding, below
 			MyIterator me = s.iterator(atom.getHead());
@@ -660,11 +657,10 @@ public class ControlRules
 		// if the top-level operator is exists
 		else if(f instanceof LTLExists)
 		{
-			LTLExpression premise = ((LTLExists) f).getPremise();
+			LTLAtom premise = ((LTLExists) f).getPremise();
 			LTLExpression consequent = ((LTLExists) f).getConsequent();
 
-			// assume the premise is atomic
-			Predicate atom = ((LTLAtom) premise).getAtom();
+			Predicate atom = premise.getAtom();
 
 			// get the state's iterator, a helper for s.nextBinding, below
 			MyIterator me = s.iterator(atom.getHead());
