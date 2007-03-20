@@ -202,7 +202,7 @@ public class State
     //-- Nothing was there to delete, so return false.
     return false;
   }
-  
+
   /** To check if a predicate is protected.
    *
    *  @param p
