@@ -30,6 +30,30 @@ public class ControlRules
 	 */
 	public static LTLExpression progress(State s, LTLExpression f)
 	{
+		return progress(s, f, null);
+	}
+
+	/**
+	 * Determines whether a given LTL control rule is true, false, or undetermined
+	 * in the given state of the world and with the given variable binding.
+	 * 
+	 * @param s
+	 *          The current state of the world.
+	 * @param f
+	 *          The expression to progress.
+	 * @param binding
+	 *          An array of Terms (of size equal to the total number of variables
+	 *          in the control rules) that specifies the assignments (if any) to
+	 *          each variable.
+	 * @return an instance of <code>LTLTrue</code> iff <code>f</code>
+	 *         evaluates to true in <code>s</code>; an instance of
+	 *         <code>LTLFalse</code> iff <code>f</code> evaluates to false in
+	 *         <code>s</code>; or, the progressed formula that must be true in
+	 *         subsequent states in order for this formula to not be false in the
+	 *         current state.
+	 */
+	public static LTLExpression progress(State s, LTLExpression f, Term[] binding)
+	{
 		// if there are temporal operators, we cannot evaluate the formula directly
 		if(f.hasTemporalOperators())
 		{
@@ -51,7 +75,7 @@ public class ControlRules
 				for(int i = 0; i < fn.length; i++)
 				{
 					// progress the subexpression
-					LTLExpression p = progress(s, fn[i]);
+					LTLExpression p = progress(s, fn[i], binding);
 
 					// if the progression evaluates to FALSE
 					if(p instanceof LTLFalse)
@@ -68,8 +92,24 @@ public class ControlRules
 					}
 				}
 
-				// recombine the conjuncts
-				return new LTLConjunction(pfn.toArray(new LTLExpression[0]));
+				// if we have 0 conjuncts left at the end
+				if(pfn.size() == 0)
+				{
+					// this means all our conjuncts were TRUE, so return TRUE
+					return LTLTrue.getInstance();
+				}
+				// if we have exactly 1 conjunct left
+				else if(pfn.size() == 1)
+				{
+					// return it by itself
+					return pfn.get(0);
+				}
+				// otherwise
+				else
+				{
+					// recombine the conjuncts and return them
+					return new LTLConjunction(pfn.toArray(new LTLExpression[0]));
+				}
 			}
 
 			// if the top operator is a disjunction
@@ -89,7 +129,7 @@ public class ControlRules
 				for(int i = 0; i < fn.length; i++)
 				{
 					// progress the subexpression
-					LTLExpression p = progress(s, fn[i]);
+					LTLExpression p = progress(s, fn[i], binding);
 
 					// if the progression evaluates to TRUE
 					if(p instanceof LTLTrue)
@@ -106,8 +146,24 @@ public class ControlRules
 					}
 				}
 
-				// recombine the conjuncts
-				return new LTLDisjunction(pfn.toArray(new LTLExpression[0]));
+				// if we have 0 disjuncts left at the end
+				if(pfn.size() == 0)
+				{
+					// this means all our disjuncts were FALSE, so return FALSE
+					return LTLFalse.getInstance();
+				}
+				// if we have exactly 1 disjunct left
+				else if(pfn.size() == 1)
+				{
+					// return it by itself
+					return pfn.get(0);
+				}
+				// otherwise
+				else
+				{
+					// recombine the disjuncts and return them
+					return new LTLDisjunction(pfn.toArray(new LTLExpression[0]));
+				}
 			}
 
 			// if the operator is a negation
@@ -120,7 +176,7 @@ public class ControlRules
 				// get the operand of this negation
 				LTLExpression f1 = ((LTLNegation) f).getOperand();
 
-				LTLExpression pf1 = progress(s, f1);
+				LTLExpression pf1 = progress(s, f1, binding);
 
 				// if progress(s, f1) evaluates to TRUE
 				if(pf1 instanceof LTLTrue)
@@ -163,7 +219,7 @@ public class ControlRules
 				LTLExpression f1 = ((LTLUntil) f).getFirstOperand();
 				LTLExpression f2 = ((LTLUntil) f).getSecondOperand();
 
-				LTLExpression pf2 = progress(s, f2);
+				LTLExpression pf2 = progress(s, f2, binding);
 
 				// if progress(s, f2) is TRUE
 				if(pf2 instanceof LTLTrue)
@@ -175,7 +231,7 @@ public class ControlRules
 				else if(pf2 instanceof LTLFalse)
 				{
 					// then our formula simplifies to progress(s, f1) & f
-					LTLExpression pf1 = progress(s, f1);
+					LTLExpression pf1 = progress(s, f1, binding);
 
 					// if progress(s, f1) is TRUE
 					if(pf1 instanceof LTLTrue)
@@ -201,7 +257,7 @@ public class ControlRules
 				// otherwise we may need to evaluate the whole formula
 				else
 				{
-					LTLExpression pf1 = progress(s, f1);
+					LTLExpression pf1 = progress(s, f1, binding);
 
 					// if progress(s, f1) is TRUE
 					if(pf1 instanceof LTLTrue)
@@ -243,7 +299,7 @@ public class ControlRules
 				// get the operands of this "eventually" operator
 				LTLExpression f1 = ((LTLEventually) f).getOperand();
 
-				LTLExpression pf1 = progress(s, f1);
+				LTLExpression pf1 = progress(s, f1, binding);
 
 				// if progress(s, f1) evaluates to TRUE,
 				if(pf1 instanceof LTLTrue)
@@ -278,7 +334,7 @@ public class ControlRules
 				// get the operands of this "eventually" operator
 				LTLExpression f1 = ((LTLEventually) f).getOperand();
 
-				LTLExpression pf1 = progress(s, f1);
+				LTLExpression pf1 = progress(s, f1, binding);
 
 				// if progress(s, f1) evaluates to TRUE,
 				if(pf1 instanceof LTLTrue)
@@ -307,11 +363,75 @@ public class ControlRules
 			// forall x (premise -> consequent)
 			// (where "premise" is an atom that is true for only finitely many x)
 			// and the formula to return is:
-			// not premise | progress(s, consequent)
+			// and { progress(s, consequent, binding_1),
+			// progress(s, consequent, binding_2),
+			// ...,
+			// progress(s, consequent, binding_n) }
+			// for each valid value of binding
 			else if(f instanceof LTLForAll)
 			{
-				// FIXME: Not entirely sure how to proceed here. Experiment.
-				return null;
+				LTLExpression premise = ((LTLForAll) f).getPremise();
+				LTLExpression consequent = ((LTLForAll) f).getConsequent();
+
+				// assume the premise is atomic
+				Predicate atom = ((LTLAtom) premise).getAtom();
+
+				// get the state's iterator, a helper for s.nextBinding, below
+				MyIterator me = s.iterator(atom.getHead());
+
+				// apply the current binding to the atom
+				if(binding != null)
+					atom = atom.applySubstitution(binding);
+
+				// to hold the new bindings we encounter
+				Term[] newbinding;
+
+				// to hold the new conjuncts
+				LinkedList<LTLExpression> conjuncts = new LinkedList<LTLExpression>();
+
+				// for each binding that satisfies the premise
+				while((newbinding = s.nextBinding(atom, me)) != null)
+				{
+					// merge the old binding into the new binding
+					if(binding != null)
+						Term.merge(newbinding, binding);
+
+					// progress the expression with the new binding
+					LTLExpression p = progress(s, consequent, newbinding);
+
+					// if the progression evaluates to FALSE
+					if(p instanceof LTLFalse)
+					{
+						// then our entire conjunction is FALSE.
+						return LTLFalse.getInstance();
+					}
+					// if the progression evaluates to TRUE, then it is irrelevant to our
+					// conjunction, and can be removed.
+					// otherwise, we must add it to the new conjunction.
+					else if(!(p instanceof LTLTrue))
+					{
+						conjuncts.add(p);
+					}
+				}
+
+				// if we have 0 conjuncts left at the end
+				if(conjuncts.size() == 0)
+				{
+					// this means all our conjuncts were TRUE, so return TRUE
+					return LTLTrue.getInstance();
+				}
+				// if we have exactly 1 conjunct left
+				else if(conjuncts.size() == 1)
+				{
+					// return it by itself
+					return conjuncts.get(0);
+				}
+				// otherwise
+				else
+				{
+					// recombine the conjuncts and return them
+					return new LTLConjunction(conjuncts.toArray(new LTLExpression[0]));
+				}
 			}
 
 			// if the operator is "exists"
@@ -319,11 +439,75 @@ public class ControlRules
 			// forall x (premise -> consequent)
 			// (where "premise" is an atom that is true for only finitely many x)
 			// and the formula to return is:
-			// not premise | progress(s, consequent)
+			// or { progress(s, consequent, binding_1),
+			// progress(s, consequent, binding_2),
+			// ...,
+			// progress(s, consequent, binding_n) }
+			// for each valid value of binding
 			else if(f instanceof LTLExists)
 			{
-				// FIXME: Not entirely sure how to proceed here. Experiment.
-				return null;
+				LTLExpression premise = ((LTLExists) f).getPremise();
+				LTLExpression consequent = ((LTLExists) f).getConsequent();
+
+				// assume the premise is atomic
+				Predicate atom = ((LTLAtom) premise).getAtom();
+
+				// get the state's iterator, a helper for s.nextBinding, below
+				MyIterator me = s.iterator(atom.getHead());
+
+				// apply the current binding to the atom
+				if(binding != null)
+					atom = atom.applySubstitution(binding);
+
+				// to hold the new bindings we encounter
+				Term[] newbinding;
+
+				// to hold the new conjuncts
+				LinkedList<LTLExpression> disjuncts = new LinkedList<LTLExpression>();
+
+				// for each binding that satisfies the premise
+				while((newbinding = s.nextBinding(atom, me)) != null)
+				{
+					// merge the old binding into the new binding
+					if(binding != null)
+						Term.merge(newbinding, binding);
+
+					// progress the expression with the new binding
+					LTLExpression p = progress(s, consequent, newbinding);
+
+					// if the progression evaluates to TRUE
+					if(p instanceof LTLTrue)
+					{
+						// then our entire disjunction is TRUE.
+						return LTLTrue.getInstance();
+					}
+					// if the progression evaluates to FALSE, then it is irrelevant to our
+					// disjunction, and can be removed.
+					// otherwise, we must add it to the new disjunction.
+					else if(!(p instanceof LTLFalse))
+					{
+						disjuncts.add(p);
+					}
+				}
+
+				// if we have 0 disjuncts left at the end
+				if(disjuncts.size() == 0)
+				{
+					// this means all our disjuncts were FALSE, so return FALSE
+					return LTLFalse.getInstance();
+				}
+				// if we have exactly 1 disjunct left
+				else if(disjuncts.size() == 1)
+				{
+					// return it by itself
+					return disjuncts.get(0);
+				}
+				// otherwise
+				else
+				{
+					// recombine the disjuncts and return them
+					return new LTLDisjunction(disjuncts.toArray(new LTLExpression[0]));
+				}
 			}
 
 			// this should never happen
@@ -342,7 +526,7 @@ public class ControlRules
 		else
 		{
 			// if the current state entails this formula
-			if(entails(s, f))
+			if(entails(s, f, binding))
 				// return TRUE
 				return LTLTrue.getInstance();
 			else
@@ -363,13 +547,36 @@ public class ControlRules
 	 * @return <code>true</code> iff the current state entails this formula,
 	 *         <code>false</code> otherwise.
 	 */
-	public static boolean entails(State s, LTLExpression f) 
+	public static boolean entails(State s, LTLExpression f)
+	{
+		return entails(s, f, null);
+	}
+
+	/**
+	 * Determines the truth value of a logical formula (without temporal
+	 * operators) in the given state of the world with the given variable binding.
+	 * 
+	 * @param s
+	 *          The current state of the world.
+	 * @param f
+	 *          The formula to evaluate. <code>f</code> is not allowed to
+	 *          contain temporal operators.
+	 * @param binding
+	 *          An array of Terms (of size equal to the total number of variables
+	 *          in the control rules) that specifies the assignments (if any) to
+	 *          each variable.
+	 * @return <code>true</code> iff the current state entails this formula,
+	 *         <code>false</code> otherwise.
+	 */
+	public static boolean entails(State s, LTLExpression f, Term[] binding)
 	{
 		if(f.hasTemporalOperators())
 		{
 			throw new IllegalArgumentException(
 			  "The input formula is not allowed to contain temporal operators.");
 		}
+		
+		// if the top-level operator is a conjunction
 		else if(f instanceof LTLConjunction)
 		{
 			// get the list of conjuncts
@@ -385,6 +592,8 @@ public class ControlRules
 			// all conjuncts evaluated to true
 			return true;
 		}
+		
+		// if the top-level operator is a disjunction
 		else if(f instanceof LTLDisjunction)
 		{
 			// get the list of conjuncts
@@ -400,6 +609,8 @@ public class ControlRules
 			// all disjuncts evaluated to false
 			return false;
 		}
+		
+		// if the top-level operator is a negation
 		else if(f instanceof LTLNegation)
 		{
 			// get the operand formula of this negation
@@ -408,6 +619,8 @@ public class ControlRules
 			// return the opposite of it
 			return !entails(s, f1);
 		}
+		
+		// if the top-level operator is forall
 		else if(f instanceof LTLForAll)
 		{
 			LTLExpression premise = ((LTLForAll) f).getPremise();
@@ -415,42 +628,94 @@ public class ControlRules
 
 			// assume the premise is atomic
 			Predicate atom = ((LTLAtom) premise).getAtom();
+
+			// get the state's iterator, a helper for s.nextBinding, below
 			MyIterator me = s.iterator(atom.getHead());
-			Term[] binding;
+
+			// apply the current binding to the atom
+			if(binding != null)
+				atom = atom.applySubstitution(binding);
+
+			// to hold the new bindings we encounter
+			Term[] newbinding;
 
 			// for each binding that satisfies the premise
-			while((binding = s.nextBinding(atom, me)) != null)
+			while((newbinding = s.nextBinding(atom, me)) != null)
 			{
-				// TODO: implement entails forall
-				// apply the binding to the consequent
-				
-				// if the state does not entail the new consequent
-				
-				// return false
+				// merge the old binding into the new binding
+				if(binding != null)
+					Term.merge(newbinding, binding);
+
+				// if the consequent is not entailed with the new binding
+				if(!entails(s, consequent, newbinding))
+					// our forall is not satisfied
+					return false;
 			}
 
-			// the state entailed the consequent for all valid premise values
+			// the state entailed the consequent for all valid premise values,
+			// so our forall is satisfied
 			return true;
 		}
+		
+		// if the top-level operator is exists
 		else if(f instanceof LTLExists)
 		{
-			// TODO: implement entails exists
-			return true;
+			LTLExpression premise = ((LTLExists) f).getPremise();
+			LTLExpression consequent = ((LTLExists) f).getConsequent();
+
+			// assume the premise is atomic
+			Predicate atom = ((LTLAtom) premise).getAtom();
+
+			// get the state's iterator, a helper for s.nextBinding, below
+			MyIterator me = s.iterator(atom.getHead());
+
+			// apply the current binding to the atom
+			if(binding != null)
+				atom = atom.applySubstitution(binding);
+
+			// to hold the new bindings we encounter
+			Term[] newbinding;
+
+			// for each binding that satisfies the premise
+			while((newbinding = s.nextBinding(atom, me)) != null)
+			{
+				// merge the old binding into the new binding
+				if(binding != null)
+					Term.merge(newbinding, binding);
+
+				// if the consequent is not entailed with the new binding
+				if(entails(s, consequent, newbinding))
+					// our exists is satisfied
+					return true;
+			}
+
+			// the state did not entail the consequent for any valid premise values,
+			// so our exists is not satisfied
+			return false;
 		}
+		
+		// if the top-level is an atom
 		else if(f instanceof LTLAtom)
 		{
+			// get the actual predicate
 			Predicate atom = ((LTLAtom) f).getAtom();
+
+			// apply the current binding to the atom
+			if(binding != null)
+				atom = atom.applySubstitution(binding);
 
 			// ASSERT atom is ground
 			if(!atom.isGround())
 			{
 				System.out.println(atom);
 				System.out.flush();
-				throw new IllegalArgumentException("All atoms should be ground.");
+				throw new IllegalArgumentException("All atoms should be ground here.");
 			}
+
+			// return true iff the state entails this ground atom
 			return entails(s, f);
 		}
-		
+
 		// this should never happen
 		else
 		{
@@ -463,167 +728,25 @@ public class ControlRules
 	}
 
 	/**
-	 * Computes all possible variable bindings that make a given expression true
-	 * in a given state. Used for computing the bindings for the premises of
-	 * ForAll and Exists operators.
+	 * Prints a <code>Term[]</code> representing a variable binding. Useful for debugging only.
 	 * 
-	 * @param s
-	 *          The current state of the world.
-	 * @param premise
-	 *          The formula to get all bindings for. This formula must be a valid
-	 *          premise to a ForAll or Exists operator, meaning that it can be
-	 *          composed only of "and" and "or" operators, and atoms.
-	 * @return a <code>LinkedList</code> of all bindings that individually
-	 *         satisfy <code>premise</code> in the given state.
+	 * @param msg The message to print before the binding is printed.
+	 * @param binding The binding to print.
 	 */
-	private static LinkedList<Term[]> getAllValidBindings(State s, LTLExpression premise)
+	public static void printBinding(String msg, Term[] binding)
 	{
-		// if the top operator is a conjunction
-		if(premise instanceof LTLConjunction)
+		System.out.println(msg);
+		for(int i = 0; i < binding.length; i++)
 		{
-			// "intersect" the bindings from the recursive subcalls
-			
-			LTLExpression[] conjuncts = ((LTLConjunction) premise).getConjuncts();
-			
-			// get all valid bindings for the first conjunct
-			LinkedList<Term[]> bindings = getAllValidBindings(s, conjuncts[0]);
-			
-			// for each additional conjunct
-			for(int i = 1; i < conjuncts.length; i++)
+			if(binding[i] == null)
+				System.out.println("null");
+			else
 			{
-				// get all valid bindings for it
-				LinkedList<Term[]> b = getAllValidBindings(s, conjuncts[i]);
-				
-				// for each binding in our current set of overall valid bindings
-				for(int j = 0; j < bindings.size(); j++)
-				{
-					Term[] t1 = bindings.get(j);
-					boolean found = false;
-					
-					// for each binding in the newly returned set of valid bindings
-					for(int k = 0; k < b.size(); k++)
-					{
-						Term[] t2 = b.get(k);
-						boolean equal = true;
-						
-						// check if the bindings are equal
-						for(int l = 0; j < t2.length; j++)
-						{
-							if(!t1[l].equals(t2[1]))
-							{
-								equal = false;
-								break;
-							}
-						}
-						
-						// if they are, we have found a match;
-						// therefore, the binding exists in both sets and should exist
-						// in the intersection.
-						if(equal)
-						{
-							found = true;
-							break;
-						}
-					}
-
-					// if we haven't found a match, this binding should not exist
-					// in the intersection.
-					if(!found)
-					{
-						bindings.remove(i);
-						i--;
-					}
-				}
+				System.out.print(binding[i].getClass() + ": ");
+				binding[i].print();
 			}
-			
-			return bindings;
 		}
-		
-		// if the top operator is a disjunction
-		else if(premise instanceof LTLDisjunction)
-		{
-			// "union" the bindings from the recursive subcalls
-			
-			LTLExpression[] disjuncts = ((LTLDisjunction) premise).getDisjuncts();
-			
-			// get all valid bindings for the first conjunct
-			LinkedList<Term[]> bindings = getAllValidBindings(s, disjuncts[0]);
-			
-			// for each additional conjunct
-			for(int i = 1; i < disjuncts.length; i++)
-			{
-				// get all valid bindings for it
-				LinkedList<Term[]> b = getAllValidBindings(s, disjuncts[i]);
-				
-				// for each binding in the newly returned set of valid bindings
-				for(int j = 0; j < b.size(); j++)
-				{
-					Term[] t1 = b.get(j);
-					boolean found = false;
-					
-					// for each binding in our current set of overall valid bindings
-					for(int k = 0; k < bindings.size(); k++)
-					{
-						Term[] t2 = bindings.get(k);
-						boolean equal = true;
-						
-						// check if the bindings are equal
-						for(int l = 0; j < t2.length; j++)
-						{
-							if(!t1[l].equals(t2[1]))
-							{
-								equal = false;
-								break;
-							}
-						}
-						
-						// if they are, we have found a match;
-						// therefore, the binding exists in both sets and should exist
-						// in the intersection.
-						if(equal)
-						{
-							found = true;
-							break;
-						}
-					}
-
-					// if we haven't found a match, this binding should be added to the
-					// union of all bindings
-					if(!found)
-					{
-						bindings.add(t1);
-					}
-				}
-			}
-			
-			return bindings;
-		}
-		
-		// if the formula is atomic
-		else if(premise instanceof LTLAtom)
-		{
-			Predicate atom = ((LTLAtom) premise).getAtom();
-			MyIterator me = s.iterator(atom.getHead());
-			LinkedList<Term[]> bindings = new LinkedList<Term[]>();
-			Term[] binding;
-
-			while((binding = s.nextBinding(atom, me)) != null)
-			{
-				bindings.add(binding);
-			}
-
-			return bindings;
-		}
-		
-		// the formula is not allowed to have anything but ands/ors/atoms
-		else
-		{
-			System.out.println(premise);
-			System.out.println(premise.getClass());
-			System.out.flush();
-			throw new IllegalArgumentException(
-			  "Premise is only allowed to contain \"and\" and \"or\" operators, and atoms.");
-		}
+		System.out.println();
 	}
 
 }

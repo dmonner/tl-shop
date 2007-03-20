@@ -202,36 +202,6 @@ public class State
     //-- Nothing was there to delete, so return false.
     return false;
   }
-
-  /**
-   * Determines whether a given ground predicate is true in this state.
-   * 
-   * @param p The predicate to check. It must be ground.
-   * @return <code>true</code> if the predicate is true in this state, <code>false</code> otherwise.
-   */
-  public boolean entails(Predicate p)
-  {
-  	if(!p.isGround())
-  	{
-			System.out.println(p);
-			System.out.flush();
-  		throw new IllegalArgumentException("Predicate must be ground.");
-  	}
-  	
-  	// for each predicate in this state with the same head as the given predicate
-  	for(int i = 0; i < atoms[p.getHead()].size(); i++) 
-  	{
-  		// if that predicate is equal to the given predicate
-  		if(((Predicate) atoms[p.getHead()].get(i)).equals(p))
-  			// then this state entails the given predicate
-  			return true;
-  	}
-  	
-  	
-  	
-  	// neither the atoms nor the axioms entailed this predicate
-  	return false;
-  }
   
   /** To check if a predicate is protected.
    *
