@@ -1,8 +1,7 @@
 package JSHOP2;
 
 /**
- * A logical expression that represents the value "true". Only useful during
- * the ControlRules.progress and ControlRules.entails methods.
+ * An expression in Linear Temporal Logic that represents the value "true".
  * 
  * There is only ever one instance of this class, since all "true" values are
  * equivalent. It is accessed with the getInstance() method.
@@ -18,11 +17,17 @@ public class LTLTrue extends LTLExpression {
 
 	private LTLTrue() {}
 
+	/**
+	 * @return the singleton instance of this class.
+	 */
 	public static LTLTrue getInstance() 
 	{
 		return INSTANCE;
 	}
 
+	/* (non-Javadoc)
+	 * @see JSHOP2.CompileTimeObject#toCode()
+	 */
 	public String toCode() 
 	{
 		return "LTLTrue.getInstance()";

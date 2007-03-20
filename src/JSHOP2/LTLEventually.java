@@ -1,8 +1,8 @@
 package JSHOP2;
 
 /**
- * Each "eventually" term in a logical expression at compile time is represented
- * as an instance of this class.
+ * An instance of this class represents an expression in Linear Temporal Logic
+ * of the form "eventually expr".
  * 
  * @author Derek Monner
  * @author <a
@@ -36,6 +36,11 @@ public class LTLEventually extends LTLExpression
 		return operand;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see JSHOP2.CompileTimeObject#toCode()
+	 */
 	public String toCode()
 	{
 		return "new LTLEventually(" + operand.toCode() + ")";
