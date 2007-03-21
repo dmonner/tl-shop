@@ -333,10 +333,16 @@ public class InternalDomain
 			// -- The single control rule will be null
 			s += "null;" + endl + endl;
 		}
-		// -- Otherwise
+		// -- If there is exactly one control rule
+		else if(controlRules.size() == 1)
+		{
+			// -- Add it as the single control rule
+			s += controlRules.get(0).toCode() + ";" + endl + endl;
+		}
+		// -- Otherwise, there are two or more control rules
 		else 
 		{
-			// -- Combine all the control rules into a single rule with conjunctions
+			// -- Combine all the control rules into a single rule with a conjunction
 			LTLExpression[] conjuncts = controlRules.toArray(new LTLExpression[0]);
 			LTLExpression singleRule = new LTLConjunction(conjuncts);
 			s += singleRule.toCode() + ";" + endl + endl;
