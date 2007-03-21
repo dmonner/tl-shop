@@ -60,10 +60,10 @@ public class InternalDomain
 	private int constantsSize;
 
 	/**
-	 * An <code>LTLExpression</code> representing the conjunction of all control
-	 * rules applicable in this domain.
+	 * A list of <code>LTLExpression</code>s representing the conjunction of
+	 * all control rules applicable in this domain.
 	 */
-	private LTLExpression controlRules;
+	private LinkedList<LTLExpression> controlRules;
 
 	/**
 	 * The new line character in the platform JSHOP2 is running on.
@@ -124,6 +124,8 @@ public class InternalDomain
 		compoundTasks = new Vector();
 
 		constants = new Vector();
+		
+		controlRules = new LinkedList<LTLExpression>();
 
 		methods = new Vector();
 
@@ -198,6 +200,19 @@ public class InternalDomain
 		return index;
 	}
 
+	/**
+	 * To add a control rule used in this planning domain. It is acceptable to
+	 * not call this method from the parser if no control rules are present in the
+	 * domain.
+	 * 
+	 * @param controlRuleIn
+	 *          a control rule used in this planning domain.
+	 */
+	public void setControlRule(LTLExpression controlRuleIn)
+	{
+		controlRules.add(controlRuleIn);
+	}
+	
 	/**
 	 * To add the <code>String</code> name of an external code call to the list
 	 * of such code calls.
@@ -310,9 +325,22 @@ public class InternalDomain
 		s += "\t\tTermVariable.initialize(" + varsMaxSize + ");" + endl + endl;
 
 		// -- Produce the control rule expression
-		s += "\t\tcontrolRules = "
-		  + (controlRules == null ? "null" : controlRules.toCode()) + ";" + endl
-		  + endl;
+		s += "\t\tcontrolRules = ";
+		
+		// -- If there are no rules in the domain
+		if(controlRules.isEmpty())
+		{
+			// -- The single control rule will be null
+			s += "null;" + endl + endl;
+		}
+		// -- Otherwise
+		else 
+		{
+			// -- Combine all the control rules into a single rule with conjunctions
+			LTLExpression[] conjuncts = controlRules.toArray(new LTLExpression[0]);
+			LTLExpression singleRule = new LTLConjunction(conjuncts);
+			s += singleRule.toCode() + ";" + endl + endl;
+		}
 
 		// -- Produce the array that maps constant symbols to integers.
 		s += vectorToCode(constants, "constants");
@@ -834,19 +862,6 @@ public class InternalDomain
 
 		// -- Return the number of elements read.
 		return j;
-	}
-
-	/**
-	 * To set the control rules used in this planning domain. It is acceptable to
-	 * not call this method from the parser if no control rules are present in
-	 * the domain.
-	 * 
-	 * @param controlRules
-	 *          the control rules used in this planning domain.
-	 */
-	public void setControlRules(LTLExpression controlRulesIn)
-	{
-		controlRules = controlRulesIn;
 	}
 
 	/**
