@@ -16,11 +16,17 @@ public class LTLConjunction extends LTLExpression
   private LTLExpression[] conjuncts;
 
 	/**
+	 * Create a conjunction out of two or more <code>LTLExpression</code> objects.
+	 * 
 	 * @param conjunctsIn
 	 *          the logical expressions to be conjoined.
 	 */
   public LTLConjunction(LTLExpression[] conjunctsIn)
   {
+  	// must have at least two, otherwise we don't need a conjunction
+  	if(conjunctsIn.length < 2)
+  		throw new IllegalArgumentException("Must have at least two conjuncts.");
+  	
     conjuncts = conjunctsIn;
     hasTemporalOps = false;
     

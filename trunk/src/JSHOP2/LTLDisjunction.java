@@ -16,12 +16,18 @@ public class LTLDisjunction extends LTLExpression
   private LTLExpression[] disjuncts;
 
 	/**
+	 * Create a disjunction out of two or more <code>LTLExpression</code> objects.
+	 * 
 	 * @param disjunctsIn
 	 *          the logical expressions to be disjoined.
 	 */
   public LTLDisjunction(LTLExpression[] disjunctsIn)
   {
-    disjuncts = disjunctsIn;
+  	// must have at least two, otherwise we don't need a disjunction
+  	if(disjunctsIn.length < 2)
+  		throw new IllegalArgumentException("Must have at least two disjuncts.");
+
+  	disjuncts = disjunctsIn;
     hasTemporalOps = false;
     
     // this disjunction has temporal operators if any of its children do
