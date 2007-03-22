@@ -249,4 +249,12 @@ public class LogicalExpressionConjunction extends LogicalExpression
   {
     return "new Precondition" + cnt + "(unifier)";
   }
+  
+  /**
+   * @return the le
+   */
+  LogicalExpression[] getLe() {
+  	return le;
+  }
+
 }
