@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Vector;
@@ -104,16 +105,16 @@ public class InternalDomain
 	private String probName;
 
 	/**
-	 * To initialize this domain.
+	 * To initialize this domain except the parser. This is private so it can
+	 * only be called from within this class from other constructors which will
+	 * set the parser
 	 * 
-	 * @param fin
-	 *          the file from which the domain description is to be read.
 	 * @param planNoIn
 	 *          the number of solution plans per planning problem that the user
 	 *          has requested from this object.
 	 * @throws IOException
 	 */
-	public InternalDomain(File fin, int planNoIn) throws IOException
+	private InternalDomain(int planNoIn) throws IOException
 	{
 		planNo = planNoIn;
 
@@ -131,12 +132,48 @@ public class InternalDomain
 
 		operators = new Vector();
 
+		primitiveTasks = new Vector();
+	}
+
+	/**
+	 * To initialize this domain using an input string instead of a filename.
+	 * Mostly for testing purposes.
+	 * 
+	 * @param input
+	 *          a string to be parsed
+	 * @param planNoIn
+	 *          the number of solution plans per planning problem that the user
+	 *          has requested from this object.
+	 * @throws IOException
+	 */
+	InternalDomain(String input, int planNoIn) throws IOException
+	{
+		this(planNoIn);
+
+		// -- Initialize the lexer and the parser associated with this object.
+		JSHOP2Lexer lexer = new JSHOP2Lexer(new StringReader(input));
+		parser = new JSHOP2Parser(lexer);
+		parser.initialize(lexer, this);
+	}
+
+	/**
+	 * To initialize this domain.
+	 * 
+	 * @param fin
+	 *          the file from which the domain description is to be read.
+	 * @param planNoIn
+	 *          the number of solution plans per planning problem that the user
+	 *          has requested from this object.
+	 * @throws IOException
+	 */
+	public InternalDomain(File fin, int planNoIn) throws IOException
+	{
+		this(planNoIn);
+
 		// -- Initialize the lexer and the parser associated with this object.
 		JSHOP2Lexer lexer = new JSHOP2Lexer(new FileInputStream(fin));
 		parser = new JSHOP2Parser(lexer);
 		parser.initialize(lexer, this);
-
-		primitiveTasks = new Vector();
 	}
 
 	/**
@@ -208,7 +245,7 @@ public class InternalDomain
 	 * @param controlRuleIn
 	 *          a control rule used in this planning domain.
 	 */
-	public void setControlRule(LTLExpression controlRuleIn)
+	public void addControlRule(LTLExpression controlRuleIn)
 	{
 		controlRules.add(controlRuleIn);
 	}
@@ -343,7 +380,7 @@ public class InternalDomain
 		else 
 		{
 			// -- Combine all the control rules into a single rule with a conjunction
-			LTLExpression[] conjuncts = controlRules.toArray(new LTLExpression[0]);
+			LTLExpression[] conjuncts = controlRules.toArray(new LTLExpression[controlRules.size()]);
 			LTLExpression singleRule = new LTLConjunction(conjuncts);
 			s += singleRule.toCode() + ";" + endl + endl;
 		}
@@ -918,4 +955,40 @@ public class InternalDomain
 
 		return retVal + endl;
 	}
+
+	/**
+	 * @return the parser
+	 */
+	JSHOP2Parser getParser() {
+		return parser;
+	}
+
+	/**
+	 * @return the axioms
+	 */
+	Vector getAxioms() {
+		return axioms;
+	}
+
+	/**
+	 * @return the methods
+	 */
+	Vector getMethods() {
+		return methods;
+	}
+
+	/**
+	 * @return the operators
+	 */
+	Vector getOperators() {
+		return operators;
+	}
+
+	/**
+	 * @return the controlRules
+	 */
+	LinkedList<LTLExpression> getControlRules() {
+		return controlRules;
+	}		
+
 }

@@ -7,6 +7,7 @@ header
   import java.io.IOException;
   import java.util.LinkedList;
   import java.util.Vector;
+  import java.util.ArrayList;
 }
 
 //------------------------------- Parser ----------------------------
@@ -156,6 +157,134 @@ pde :
   op
 |
   axiom
+|
+  constraint
+;
+
+//-------------------------------- LTL Constraint ---------------------------
+
+constraint returns [LTLExpression retVal]:
+  {
+  }
+  LP CONSTRAINT retVal = ltlexpr RP
+    {
+    	//-- Add ltl control rule to domain
+    	domain.addControlRule(retVal);
+    }  
+;
+
+//-- LTL Expression
+ltlexpr returns [LTLExpression retVal]
+  {
+  	// List of conjuncts or disjuncts
+  	ArrayList<LTLExpression> list = new ArrayList<LTLExpression>();
+
+  	// Variables for holding intermediate values
+  	LTLExpression lExp, lExp2;  	
+  }
+:
+
+  //~~ Case 1a. TRUE atom
+  TRUE
+    {
+		retVal = LTLTrue.getInstance();
+    }
+
+|
+  //~~ Case 1b. FALSE atom
+  FALSE
+    {
+		retVal = LTLFalse.getInstance();
+    }
+    
+|
+  //~~ Case 2. Conjunction `AND`
+  (AND)?
+    (
+      LP lExp = ltlexpr RP
+        {
+          //-- Add the current conjunct to the list of conjuncts.
+          list.add(lExp);
+        }
+    )+
+    {
+    	assert list.size() > 0;
+    	
+    	if (list.size() == 1)
+    		retVal = list.get(0);
+    		
+    	else
+    		retVal = new LTLConjunction( list.toArray(new LTLExpression[list.size()]) );    	
+    }
+    
+|
+  //~~ Case 3. Disjunction `OR`
+  OR
+    (
+      LP lExp = ltlexpr RP
+        {
+          //-- Add the current disjunct to the list of disjuncts.
+          list.add(lExp);
+        }
+    )+
+    {
+    	assert list.size() > 0;
+    	
+    	if (list.size() == 1)
+    		retVal = list.get(0);
+    		
+    	else
+    		retVal = new LTLDisjunction( list.toArray(new LTLExpression[list.size()]) );
+    }
+  
+|
+  //~~ Case 4. `Next` temporal expression
+    NEXT  lExp = ltlexpr
+    {
+    	retVal = new LTLNext(lExp);    	
+    }
+
+|
+  //~~ Case 5. `Always` temporal expression
+    ALWAYS  lExp = ltlexpr
+    {
+    	retVal = new LTLAlways(lExp);    	
+    }
+
+|
+  //~~ Case 6. `Eventually` temporal expression
+    EVENTUALLY  lExp = ltlexpr
+    {
+    	retVal = new LTLEventually(lExp);    	
+    }
+
+|
+  //~~ Case 7. `Until` temporal expression
+    UNTIL  LP lExp = ltlexpr RP  LP lExp2 = ltlexpr RP
+    {
+    	retVal = new LTLUntil(lExp, lExp2);    	
+    }
+
+|
+  // Case 0. An LTLAtom is an LTLExpression
+  retVal = ltlatom
+  
+|
+  // Case 0. Additional enclosing parenthesis
+  LP retVal = ltlexpr  RP
+    
+;
+
+ltlatom returns [LTLAtom retVal]
+{
+  	// Predicate returned by a logical atom in LTLAtom
+	Predicate p;
+}
+:
+	p = la
+	{
+		retVal = new LTLAtom(p);
+	}  
 ;
 
 //-------------------------------- Method ---------------------------
@@ -943,6 +1072,10 @@ tokens
   NOT            = "not";
   OR             = "or";
   STDLIB         = "stdlib";
+  
+  TRUE           = "true";
+  FALSE          = "false";
+  EXISTS         = "exists";
 }
 
 //-- Grammar Terminals
@@ -969,6 +1102,12 @@ OPERATOR    : ":operator";
 PROTECTION  : ":protection";
 SORT        : ":sort-by";
 UNORDERED   : ":unordered";
+CONSTRAINT  : ":constraint";
+
+NEXT        : ":next";
+ALWAYS      : ":always";
+EVENTUALLY  : ":eventually";
+UNTIL       : ":until";
 
 //-- Whitespace (ignored)
 WS :
