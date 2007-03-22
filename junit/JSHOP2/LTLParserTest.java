@@ -131,10 +131,10 @@ public class LTLParserTest extends TestCase {
 		parseString = "(:constraint (isHot ?x))";
 		checkConstraint(parseString, "new LTLAtom(new Predicate(0, 1, new TermList(TermVariable.getVariable(0), TermList.NIL)))");
 
-		parseString = "(:constraint (?x))";
+		parseString = "(:constraint (?x))"; // meaningless, variable is not bound to anything
 		checkConstraint(parseString, "new LTLAtom(new Predicate(-1, 0, TermList.NIL))");
 
-		parseString = "(:constraint ?x)";
+		parseString = "(:constraint ?x)"; // meaningless, variable is not bound to anything
 		checkConstraint(parseString, "new LTLAtom(new Predicate(-1, 0, TermList.NIL))");
 
 		parseString = "(:constraint (:next (TRUE) (TRUE)))";
@@ -156,5 +156,64 @@ public class LTLParserTest extends TestCase {
 		lexp = luntil.getSecondOperand();
 		assertTrue(lexp instanceof LTLFalse);
 		assertFalse(lexp.hasTemporalOperators());
+	}
+	
+	public void testLTLAtom() {
+		String parseString = "(:constraint (ishot ?s b 5))";
+		LTLExpression lexp = parseConstraint(parseString);
+		assertTrue(lexp instanceof LTLAtom);
+		assertFalse(lexp.hasTemporalOperators());		
+		System.out.println(((LTLAtom) lexp).getAtom().toCode());
+		System.out.println(((LTLAtom) lexp).getAtom().getVarCount());
+		System.out.println(((LTLAtom) lexp).getAtom().getHead());
+		System.out.println(((LTLAtom) lexp).getAtom().isVar());
+		System.out.println(((LTLAtom) lexp).getAtom().isGround());
+
+		int head = ((LTLAtom) lexp).getAtom().getHead();
+		if (head >= 0) System.out.println(idm.getConstants().get(head));
+
+		System.out.println(((LTLAtom) lexp).getAtom().getParam().getClass());
+		TermList tl = (TermList) ((LTLAtom) lexp).getAtom().getParam();
+		System.out.println(tl.getList().getHead().toCode());
+	}
+	
+	public void testLTLForAll() {
+		String parseString = "(:constraint (forall nil ?x true))";
+		LTLExpression lexp = parseConstraint(parseString);
+		assertTrue(lexp instanceof LTLForAll);
+		assertFalse(lexp.hasTemporalOperators());		
+		checkConstraint(parseString, "new LTLForAll(new LTLAtom(new Predicate(-1, 0, TermList.NIL)), LTLTrue.getInstance())");
+		
+		parseString = "(:constraint (forall (?x) ?x true))";
+		checkConstraint(parseString, "new LTLForAll(new LTLAtom(new Predicate(-1, 0, TermList.NIL)), LTLTrue.getInstance())");
+
+		parseString = "(:constraint (forall () ?x true))";
+		checkConstraint(parseString, "new LTLForAll(new LTLAtom(new Predicate(-1, 0, TermList.NIL)), LTLTrue.getInstance())");
+
+		parseString = "(:constraint (forall () (?x) true))";
+		checkConstraint(parseString, "new LTLForAll(new LTLAtom(new Predicate(-1, 0, TermList.NIL)), LTLTrue.getInstance())");
+
+		parseString = "(:constraint (forall () (?x) (true)))";
+		checkConstraint(parseString, "new LTLForAll(new LTLAtom(new Predicate(-1, 0, TermList.NIL)), LTLTrue.getInstance())");
+	}
+	
+	public void testLTLExists() {
+		String parseString = "(:constraint (Exists nil ?x true))";
+		LTLExpression lexp = parseConstraint(parseString);
+		assertTrue(lexp instanceof LTLExists);
+		assertFalse(lexp.hasTemporalOperators());		
+		checkConstraint(parseString, "new LTLExists(new LTLAtom(new Predicate(-1, 0, TermList.NIL)), LTLTrue.getInstance())");
+		
+		parseString = "(:constraint (Exists (?x) ?x true))";
+		checkConstraint(parseString, "new LTLExists(new LTLAtom(new Predicate(-1, 0, TermList.NIL)), LTLTrue.getInstance())");
+
+		parseString = "(:constraint (EXISTS () ?x true))";
+		checkConstraint(parseString, "new LTLExists(new LTLAtom(new Predicate(-1, 0, TermList.NIL)), LTLTrue.getInstance())");
+
+		parseString = "(:constraint (exists () (?x) true))";
+		checkConstraint(parseString, "new LTLExists(new LTLAtom(new Predicate(-1, 0, TermList.NIL)), LTLTrue.getInstance())");
+
+		parseString = "(:constraint (exists () (?x) (true)))";
+		checkConstraint(parseString, "new LTLExists(new LTLAtom(new Predicate(-1, 0, TermList.NIL)), LTLTrue.getInstance())");
 	}
 }

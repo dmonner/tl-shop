@@ -239,39 +239,66 @@ ltlexpr returns [LTLExpression retVal]
   
 |
   //~~ Case 4. `Next` temporal expression
-    NEXT  lExp = ltlexpr
+  NEXT  lExp = ltlexpr
     {
     	retVal = new LTLNext(lExp);    	
     }
 
 |
   //~~ Case 5. `Always` temporal expression
-    ALWAYS  lExp = ltlexpr
+  ALWAYS  lExp = ltlexpr
     {
     	retVal = new LTLAlways(lExp);    	
     }
 
 |
   //~~ Case 6. `Eventually` temporal expression
-    EVENTUALLY  lExp = ltlexpr
+  EVENTUALLY  lExp = ltlexpr
     {
     	retVal = new LTLEventually(lExp);    	
     }
 
 |
   //~~ Case 7. `Until` temporal expression
-    UNTIL  LP lExp = ltlexpr RP  LP lExp2 = ltlexpr RP
+  UNTIL  LP lExp = ltlexpr RP  LP lExp2 = ltlexpr RP
     {
     	retVal = new LTLUntil(lExp, lExp2);    	
     }
 
 |
-  // Case 0. An LTLAtom is an LTLExpression
-  retVal = ltlatom
-  
+  //~~ Case 8. forall ltlatom ltlexpr
+  LP FORALL
+  (
+    (LP (VARID)*  RP)
+  |
+    NIL
+  ) lExp = ltlatom lExp2 = ltlexpr RP
+  {
+    //-- A ForAll logical expression
+    retVal = new LTLForAll( (LTLAtom) lExp, lExp2);
+  }
+
 |
-  // Case 0. Additional enclosing parenthesis
-  LP retVal = ltlexpr  RP
+  //~~ Case 9. exists ltlatom ltlexpr
+  LP EXISTS
+  (
+    (LP (VARID)*  RP)
+  |
+    NIL
+  ) lExp = ltlatom lExp2 = ltlexpr RP
+  {
+    //-- A ForAll logical expression
+    retVal = new LTLExists( (LTLAtom) lExp, lExp2);
+  }
+
+|
+  // Case 10. An LTLAtom is an LTLExpression
+  retVal = ltlatom
+
+// Not necessary because of syntax of AND (Case 2)  
+// |
+//   // Case 0. Additional enclosing parenthesis
+//   LP retVal = ltlexpr  RP
     
 ;
 
@@ -281,6 +308,11 @@ ltlatom returns [LTLAtom retVal]
 	Predicate p;
 }
 :
+	LP p = la RP
+	{
+		retVal = new LTLAtom(p);
+	}  
+|
 	p = la
 	{
 		retVal = new LTLAtom(p);
