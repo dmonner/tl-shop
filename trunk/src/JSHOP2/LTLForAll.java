@@ -17,16 +17,18 @@ public class LTLForAll extends LTLExpression
 	 * The premise of this forall expression; an atom involving x.
 	 */
 	private LTLAtom premise;
-	
+
 	/**
-	 * The consequent of this forall expression; it must be true for each value
-	 * of x that makes the premise true.
+	 * The consequent of this forall expression; it must be true for each value of
+	 * x that makes the premise true.
 	 */
 	private LTLExpression consequent;
 
 	/**
-	 * @param premiseIn the premise to use in this forall expression.
-	 * @param consequentIn the consequent to use in this forall expression.
+	 * @param premiseIn
+	 *          the premise to use in this forall expression.
+	 * @param consequentIn
+	 *          the consequent to use in this forall expression.
 	 */
 	public LTLForAll(LTLAtom premiseIn, LTLExpression consequentIn)
 	{
@@ -51,12 +53,25 @@ public class LTLForAll extends LTLExpression
 		return consequent;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see JSHOP2.CompileTimeObject#toCode()
 	 */
 	public String toCode()
 	{
 		return "new LTLForAll(" + premise.toCode() + ", " + consequent.toCode()
 		  + ")";
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see JSHOP2.LTLExpression#applySubstitution(JSHOP2.Term[])
+	 */
+	public LTLExpression applySubstitution(Term[] binding)
+	{
+		return new LTLForAll(premise.applySubstitution(binding), consequent
+		  .applySubstitution(binding));
 	}
 }

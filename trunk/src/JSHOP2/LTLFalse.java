@@ -33,4 +33,12 @@ public class LTLFalse extends LTLExpression {
 		return "LTLFalse.getInstance()";
 	}
 
+
+	/* (non-Javadoc)
+	 * @see JSHOP2.LTLExpression#applySubstitution(JSHOP2.Term[])
+	 */
+  public LTLExpression applySubstitution(Term[] binding)
+  {
+	  return this;
+  }
 }

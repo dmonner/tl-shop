@@ -39,4 +39,12 @@ public class LTLNegation extends LTLExpression
   {
     return "new LTLNegation(" + operand.toCode() + ")";
   }
+
+	/* (non-Javadoc)
+	 * @see JSHOP2.LTLExpression#applySubstitution(JSHOP2.Term[])
+	 */
+  public LTLExpression applySubstitution(Term[] binding)
+  {
+	  return new LTLNegation(operand.applySubstitution(binding));
+  }
 }

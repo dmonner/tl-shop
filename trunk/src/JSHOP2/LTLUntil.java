@@ -20,7 +20,7 @@ public class LTLUntil extends LTLExpression
 	 * The logical expression that, when/if it becomes true, will allow
 	 * <code>firstExpression</code> to become false.
 	 */
-	private LTLExpression secondOperator;
+	private LTLExpression secondOperand;
 
 	/**
 	 * To initialize this "until" logical expression.
@@ -35,7 +35,7 @@ public class LTLUntil extends LTLExpression
 	public LTLUntil(LTLExpression first, LTLExpression second)
 	{
 		firstOperand = first;
-		secondOperator = second;
+		secondOperand = second;
 		hasTemporalOps = true;
 	}
 
@@ -52,7 +52,7 @@ public class LTLUntil extends LTLExpression
 	 */
 	public LTLExpression getSecondOperand()
 	{
-		return secondOperator;
+		return secondOperand;
 	}
 
 	/*
@@ -63,6 +63,17 @@ public class LTLUntil extends LTLExpression
 	public String toCode()
 	{
 		return "new LTLUntil(" + firstOperand.toCode() + ", "
-		  + secondOperator.toCode() + ")";
+		  + secondOperand.toCode() + ")";
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see JSHOP2.LTLExpression#applySubstitution(JSHOP2.Term[])
+	 */
+	public LTLExpression applySubstitution(Term[] binding)
+	{
+		return new LTLUntil(firstOperand.applySubstitution(binding), secondOperand
+		  .applySubstitution(binding));
 	}
 }

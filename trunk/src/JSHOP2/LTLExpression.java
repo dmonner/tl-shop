@@ -36,4 +36,12 @@ public abstract class LTLExpression extends CompileTimeObject
 	{
 		return toCode();
 	}
+
+	/**
+	 * This method applies the given variable substitution to all predicates in
+	 * this expression.
+	 * 
+	 * @param binding the variable binding to apply.
+	 */
+	public abstract LTLExpression applySubstitution(Term[] binding);
 }

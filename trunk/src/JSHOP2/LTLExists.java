@@ -59,4 +59,15 @@ public class LTLExists extends LTLExpression
 		return "new LTLExists(" + premise.toCode() + ", " + consequent.toCode()
 		  + ")";
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see JSHOP2.LTLExpression#applySubstitution(JSHOP2.Term[])
+	 */
+	public LTLExpression applySubstitution(Term[] binding)
+	{
+		return new LTLExists(premise.applySubstitution(binding), consequent
+		  .applySubstitution(binding));
+	}
 }
