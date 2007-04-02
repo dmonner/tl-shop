@@ -81,3 +81,10 @@ d: src/JSHOP2/*.java
 	cd examples/blocks; javac smallproblem.java
 	cd examples/blocks; java smallproblem
 	cd examples/blocks; rm blocks.java; rm blocks.txt; rm smallproblem.java; rm *.class
+
+11: bin/JSHOP2.jar
+	cd examples/basicltl; java JSHOP2.InternalDomain basicltl
+	cd examples/basicltl; java JSHOP2.InternalDomain -ra problem
+	cd examples/basicltl; javac problem.java
+	cd examples/basicltl; java problem
+	cd examples/basicltl; rm basicltl.java; rm basicltl.txt; rm problem.java; rm *.class

@@ -350,7 +350,6 @@ public class LTLProgressTest extends TestCase {
 		
 		// second operand unevaluable, first operand true
 		e = new LTLUntil(p1, new LTLNext(p3));
-		System.out.println(ControlRules.progress(s, e));
 		assertTrue(ControlRules.progress(s, e).toString().equals("new LTLDisjunction(new LTLExpression[] {" + p3 + ", " + e + "})"));
 
 		// second operand unevaluable, first operand false

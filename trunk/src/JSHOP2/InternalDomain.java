@@ -368,7 +368,7 @@ public class InternalDomain
 		if(controlRules.isEmpty())
 		{
 			// -- The single control rule will be null
-			s += "null;" + endl + endl;
+			s += "LTLTrue.getInstance();" + endl + endl;
 		}
 		// -- If there is exactly one control rule
 		else if(controlRules.size() == 1)
