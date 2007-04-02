@@ -515,6 +515,16 @@ public class ControlRules
 			  "The input formula is not allowed to contain temporal operators.");
 		}
 		
+		else if(f instanceof LTLTrue)
+		{
+			return true;
+		}
+		
+		else if(f instanceof LTLFalse)
+		{
+			return false;
+		}
+		
 		// if the top-level operator is a conjunction
 		else if(f instanceof LTLConjunction)
 		{

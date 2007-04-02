@@ -1,0 +1,2 @@
+(defproblem problem basicltl
+  ((have kiwi) (dummy)) ((swap banjo kiwi)))
