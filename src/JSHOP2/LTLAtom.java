@@ -39,4 +39,12 @@ public class LTLAtom extends LTLExpression
   {
     return "new LTLAtom(" + atom.toCode() + ")";
   }
+
+	/* (non-Javadoc)
+	 * @see JSHOP2.LTLExpression#applySubstitution(JSHOP2.Term[])
+	 */
+  public LTLAtom applySubstitution(Term[] binding)
+  {
+	  return new LTLAtom(atom.applySubstitution(binding));
+  }
 }

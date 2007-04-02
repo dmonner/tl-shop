@@ -66,4 +66,19 @@ public class LTLDisjunction extends LTLExpression
     
     return s;
   }
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see JSHOP2.LTLExpression#applySubstitution(JSHOP2.Term[])
+	 */
+	public LTLExpression applySubstitution(Term[] binding)
+	{
+		LTLExpression[] newdisj = new LTLExpression[disjuncts.length];
+		
+		for(int i = 0; i < disjuncts.length; i++)
+			newdisj[i] = disjuncts[i].applySubstitution(binding);
+		
+		return new LTLConjunction(newdisj);
+	}
 }

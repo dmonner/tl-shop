@@ -42,4 +42,12 @@ public class LTLNext extends LTLExpression
 	{
 		return "new LTLNext(" + operand.toCode() + ")";
 	}
+	
+	/* (non-Javadoc)
+	 * @see JSHOP2.LTLExpression#applySubstitution(JSHOP2.Term[])
+	 */
+  public LTLExpression applySubstitution(Term[] binding)
+  {
+	  return new LTLNext(operand.applySubstitution(binding));
+  }
 }

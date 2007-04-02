@@ -45,4 +45,12 @@ public class LTLEventually extends LTLExpression
 	{
 		return "new LTLEventually(" + operand.toCode() + ")";
 	}
+
+	/* (non-Javadoc)
+	 * @see JSHOP2.LTLExpression#applySubstitution(JSHOP2.Term[])
+	 */
+  public LTLExpression applySubstitution(Term[] binding)
+  {
+	  return new LTLEventually(operand.applySubstitution(binding));
+  }
 }
