@@ -452,6 +452,7 @@ op :
 
       vars.clear();
     }
+  (constraint)*
   RP
 ;
 

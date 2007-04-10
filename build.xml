@@ -6,6 +6,11 @@
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
 
+	<!-- local.properties should not be checked into SVN -->
+	<property file="local.properties" />
+	<!-- set global properties for this build -->
+	<property file="build.properties" />
+	
 	<property name="classpath" value="bin/antlr.jar;bin/JSHOP2.jar" />
 	
 	<property name="build.dir" value="src/JSHOP2" />
@@ -13,10 +18,10 @@
 	<property name="build.jar" value="bin/JSHOP2.jar" />
 	
 	<!-- Properties that should be changed for each run -->
-	<property name="working.dir" value="examples/basicltl" />
-	<property name="domain.name" value="basicltl" />
-	<property name="problem.name" value="problem" />
-	<property name="plan.count" value="2" />
+	<property name="working.dir" value="${default.working.dir}" />
+	<property name="domain.name" value="${default.domain.name}" />
+	<property name="problem.name" value="${default.problem.name}" />
+	<property name="plan.count" value="${default.plan.count}" />
 
 
 	<!-- BUILD TARGETS -->
@@ -82,20 +87,23 @@
 
 	<!-- EXAMPLE TARGETS -->
 	
-	<target name="run.basic">
+	<target name="set.defaults">
+		<property name="working.dir" value="${default.working.dir}" />
+		<property name="domain.name" value="${default.domain.name}" />
+		<property name="problem.name" value="${default.problem.name}" />
+		<property name="plan.count" value="${default.plan.count}" />
+	</target>
+	
+	<target name="run.basic" depends="set.defaults">
 		<property name="working.dir" value="examples/basic" />
 		<property name="domain.name" value="basic" />
-		<property name="problem.name" value="problem" />
-		<property name="plan.count" value="1" />
 		
 		<antcall target="run.example" />
 	</target>
 	
-	<target name="run.basicltl">
+	<target name="run.basicltl" depends="set.defaults">
 		<property name="working.dir" value="examples/basicltl" />
 		<property name="domain.name" value="basicltl" />
-		<property name="problem.name" value="problem" />
-		<property name="plan.count" value="a" />
 		
 		<antcall target="run.example" />
 	</target>
