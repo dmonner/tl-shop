@@ -21,6 +21,8 @@ public class LTLAtom extends LTLExpression
    */
   public LTLAtom(Predicate atomIn)
   {
+	if (atomIn.getHead() == -1)
+		throw new IllegalArgumentException("LTLAtom cannot be undeclared variable");
   	atom = atomIn;
   }
   

@@ -1,0 +1,104 @@
+<project name="submitServer" default="run.example" basedir=".">
+
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		build.xml: For Running examples from eclipse
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+
+	<property name="classpath" value="bin/antlr.jar;bin/JSHOP2.jar" />
+	
+	<property name="build.dir" value="src/JSHOP2" />
+	<property name="build.args" value="JSHOP2.g" />
+	<property name="build.jar" value="bin/JSHOP2.jar" />
+	
+	<!-- Properties that should be changed for each run -->
+	<property name="working.dir" value="examples/basicltl" />
+	<property name="domain.name" value="basicltl" />
+	<property name="problem.name" value="problem" />
+	<property name="plan.count" value="2" />
+
+
+	<!-- BUILD TARGETS -->
+	
+	<!-- Build JSHOP2.jar overwriting existing jar -->
+	<target name="build.jshop2">
+		<echo message="Building {build.jar}"/>
+		<java classname="antlr.Tool" dir="${build.dir}" 	
+				fork="true" failonerror="true" classpath="${classpath}">
+			<arg line="${build.args}"/>
+		</java>
+		<javac srcdir="${build.dir}" destdir="${build.dir}" classpath="${classpath}"
+				includes="*.java">
+		</javac>
+		<jar destfile="${build.jar}" update="false">
+			<fileset dir="${build.dir}" includes="JSHOP2/*.class" />
+		</jar>
+		<delete dir="${build.dir}/JSHOP2" />
+	</target>
+
+	<!-- Decide if JSHOP2.jar exists -->
+	<target name="check.for.jar">
+		<condition property="jshop.jar.exists">
+			<available file="${build.jar}" type="file"></available>
+		</condition>
+	</target>
+
+	<!-- Build JSHOP2.jar if it does not already exist -->
+	<target name="ifne" depends="check.for.jar" unless="jshop.jar.exists">
+		<antcall target="build.jshop2" />
+	</target>
+
+	
+	
+	<!-- RUN TARGETS -->
+	
+	<!-- Run an example given the current properties -->	
+	<target name="run.example" depends="ifne">
+		<echo message="Running ${working.dir}"/>
+		<java classname="JSHOP2.InternalDomain" dir="${working.dir}" 	
+				fork="true" failonerror="true" classpath="${classpath}">
+			<arg line="${domain.name}"/>
+		</java>
+		<java classname="JSHOP2.InternalDomain" dir="${working.dir}" 
+				fork="true" failonerror="true" classpath="${classpath}">
+			<arg line="-r${plan.count} ${problem.name}"/>
+		</java>
+		<javac srcdir="${working.dir}" destdir="${working.dir}" classpath="${classpath}">
+			<include name="${problem.name}.java"/>
+		</javac>
+		<java classname="${problem.name}" dir="${working.dir}" 
+				fork="true" failonerror="true" classpath="${classpath};${working.dir}">
+		</java>
+		<delete>
+			<fileset dir="${working.dir}" includes="*.class,${problem.name}.java"/>
+			<fileset dir="${working.dir}" includes="${domain.name}.java,${domain.name}.txt"/>
+		</delete>
+	</target>
+
+	<!-- Unconditionally rebuild JSHOP2.jar and run current example -->
+	<target name="rebuild.run.example" depends="build.jshop2,run.example" />
+
+
+	<!-- EXAMPLE TARGETS -->
+	
+	<target name="run.basic">
+		<property name="working.dir" value="examples/basic" />
+		<property name="domain.name" value="basic" />
+		<property name="problem.name" value="problem" />
+		<property name="plan.count" value="1" />
+		
+		<antcall target="run.example" />
+	</target>
+	
+	<target name="run.basicltl">
+		<property name="working.dir" value="examples/basicltl" />
+		<property name="domain.name" value="basicltl" />
+		<property name="problem.name" value="problem" />
+		<property name="plan.count" value="a" />
+		
+		<antcall target="run.example" />
+	</target>
+	
+
+</project>
