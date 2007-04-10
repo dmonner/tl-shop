@@ -17,7 +17,8 @@
     ((!drop ?x) (!pickup ?y))
     ((have ?y) (not (have ?x)))
     ((!drop ?y) (!pickup ?x))
+;    (:constraint (:always (dummy)))
   )
   
-  (:constraint (:always (dummy)))
+;  (:constraint (:always (dummy)))
 ))

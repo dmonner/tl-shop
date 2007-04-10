@@ -65,14 +65,21 @@ public class LTLParserTest extends TestCase {
 		} 
 		catch (RecognitionException e) { } // success 
 		catch (TokenStreamException e) { } // success
+		catch (IllegalArgumentException e) { } // success
 	}
 	
 	public void checkConstraint(String parseString, String checkString) {
 		LTLExpression lexp = parseConstraint(parseString);
 		String parsed = lexp.toString();
 		
-		if (false) System.out.println(parsed);
+		if (true) System.out.println(parsed);
 		assertEquals(parsed, checkString);
+	}
+
+	public void testExperiments()  {
+		// parenthesis not required around ltl expression...
+		String parseString = "(:constraint (isHot))";
+		checkConstraint(parseString, "LTLTrue.getInstance()");
 	}
 	
 	// test that all the given strings can be parsed
@@ -132,11 +139,13 @@ public class LTLParserTest extends TestCase {
 		checkConstraint(parseString, "new LTLAtom(new Predicate(0, 1, new TermList(TermVariable.getVariable(0), TermList.NIL)))");
 
 		parseString = "(:constraint (?x))"; // meaningless, variable is not bound to anything
-		checkConstraint(parseString, "new LTLAtom(new Predicate(-1, 0, TermList.NIL))");
+		if (false) checkConstraint(parseString, "new LTLAtom(new Predicate(-1, 0, TermList.NIL))");
+		parseConstraintWithException(parseString);
 
 		parseString = "(:constraint ?x)"; // meaningless, variable is not bound to anything
-		checkConstraint(parseString, "new LTLAtom(new Predicate(-1, 0, TermList.NIL))");
-
+		if (false) checkConstraint(parseString, "new LTLAtom(new Predicate(-1, 0, TermList.NIL))");
+		parseConstraintWithException(parseString);
+		
 		parseString = "(:constraint (:next (TRUE) (TRUE)))";
 		checkConstraint(parseString, "new LTLNext(new LTLConjunction(new LTLExpression[] {LTLTrue.getInstance(), LTLTrue.getInstance()}))");
 	}
@@ -215,5 +224,11 @@ public class LTLParserTest extends TestCase {
 
 		parseString = "(:constraint (exists () (?x) (true)))";
 		checkConstraint(parseString, "new LTLExists(new LTLAtom(new Predicate(-1, 0, TermList.NIL)), LTLTrue.getInstance())");
+	}
+	
+	public void testImply() {
+		String parseString = "(:constraint (:until (:next (dummy)) (ishot ?x)))";
+		//parseString = "(:constraint (exists () (ishot ?x) (ishot ?x)))";
+		System.out.println( parseConstraint(parseString) );
 	}
 }

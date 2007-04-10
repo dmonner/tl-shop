@@ -122,6 +122,7 @@ prob throws IOException :
       taskLists.add(tList);
     }
   )+
+  (constraint)*
   RP
     {
       //-- Convert the command to Java code and write it.
@@ -238,6 +239,23 @@ ltlexpr returns [LTLExpression retVal]
     }
   
 |
+  //~~ Case 3.1 Implication `IMPLY`
+  IMPLY LP lExp = ltlexpr RP  LP lExp2 = ltlexpr RP
+    {
+    	retVal = new LTLDisjunction( new LTLExpression[] {
+    		lExp2,
+    		new LTLNegation(lExp)
+    	} );
+    }
+  
+|
+  //~~ Case 3.2 Negation `NOT`
+  NOT lExp = ltlexpr  
+    {
+    	retVal = new LTLNegation(lExp);
+    }
+  
+|
   //~~ Case 4. `Next` temporal expression
   NEXT  lExp = ltlexpr
     {
@@ -260,6 +278,7 @@ ltlexpr returns [LTLExpression retVal]
 
 |
   //~~ Case 7. `Until` temporal expression
+  //  Need to get rid of these parenthesis
   UNTIL  LP lExp = ltlexpr RP  LP lExp2 = ltlexpr RP
     {
     	retVal = new LTLUntil(lExp, lExp2);    	
@@ -386,6 +405,7 @@ method :
 
       vars.clear();
     }
+  (constraint)*
   RP
 ;
 
