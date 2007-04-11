@@ -1,191 +1,233 @@
 package JSHOP2;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Vector;
 
-/** Each method at compile time is represented as an instance of this class.
- *
- *  @author Okhtay Ilghami
- *  @author <a href="http://www.cs.umd.edu/~okhtay">http://www.cs.umd.edu/~okhtay</a>
- *  @version 1.0.3
-*/
+/**
+ * Each method at compile time is represented as an instance of this class.
+ * 
+ * @author Okhtay Ilghami
+ * @author <a href="http://www.cs.umd.edu/~okhtay">http://www.cs.umd.edu/~okhtay</a>
+ * @version 1.0.3
+ */
 public class InternalMethod extends InternalElement
 {
-  /** The number of objects already instantiated from this class.
-  */
-  private static int classCnt = 0;
+	/**
+	 * The number of objects already instantiated from this class.
+	 */
+	private static int classCnt = 0;
 
-  /** A <code>Vector</code> of <code>String</code>s each of which represents
-   *  the label of a branch of this method.
-  */
-  private Vector labels;
+	/**
+	 * A <code>Vector</code> of <code>String</code>s each of which represents
+	 * the label of a branch of this method.
+	 */
+	private Vector labels;
 
-  /** A <code>Vector</code> of logical preconditions each of which represents
-   *  the precondition of a branch of this method. Each branch is an
-   *  alternative on how to decompose the task associated with this method.
-  */
-  private Vector pres;
+	/**
+	 * A <code>Vector</code> of logical preconditions each of which represents
+	 * the precondition of a branch of this method. Each branch is an alternative
+	 * on how to decompose the task associated with this method.
+	 */
+	private Vector pres;
 
-  /** A <code>Vector</code> of task lists each of which represents a possible
-   *  way to decompose the task associated with this method if the
-   *  corresponding precondition is satisfied in the current state of the
-   *  world.
-  */
-  private Vector subs;
+	/**
+	 * A <code>Vector</code> of task lists each of which represents a possible
+	 * way to decompose the task associated with this method if the corresponding
+	 * precondition is satisfied in the current state of the world.
+	 */
+	private Vector subs;
 
-  /** To initialize an <code>InternalMethod</code> object.
-   *
-   *  @param head
-   *          head of the method (i.e., the compound task which can be
-   *          decomposed by using this method).
-   *  @param labelsIn
-   *          a <code>Vector</code> of <code>String</code> labels.
-   *  @param presIn
-   *          a <code>Vector</code> of logical preconditions.
-   *  @param subsIn
-   *          a <code>Vector</code> of task lists.
-  */
-  public InternalMethod(Predicate head, Vector labelsIn, Vector presIn,
-                        Vector subsIn)
-  {
-    //-- Set the head of this InternalMethod. Note the use of 'classCnt' to
-    //-- mak this object distinguishable from other objects instantiated from
-    //-- this same class.
-    super(head, classCnt++);
+	/**
+	 * LTL postconditions to be conjoined to form the postcondition for this
+	 * method.
+	 */
+	private LinkedList<LTLExpression> postconditions;
 
-    //-- Set the labels, preconditions and task descompositions of
-    //-- branches in this method.
-    labels = labelsIn;
-    pres = presIn;
-    subs = subsIn;
+	/**
+	 * To initialize an <code>InternalMethod</code> object.
+	 * 
+	 * @param head
+	 *          head of the method (i.e., the compound task which can be
+	 *          decomposed by using this method).
+	 * @param labelsIn
+	 *          a <code>Vector</code> of <code>String</code> labels.
+	 * @param presIn
+	 *          a <code>Vector</code> of logical preconditions.
+	 * @param subsIn
+	 *          a <code>Vector</code> of task lists.
+	 */
+	public InternalMethod(Predicate head, Vector labelsIn, Vector presIn,
+	  Vector subsIn)
+	{
+		// -- Set the head of this InternalMethod. Note the use of 'classCnt' to
+		// -- mak this object distinguishable from other objects instantiated from
+		// -- this same class.
+		super(head, classCnt++);
 
-    //-- To iterate over branch preconditions.
-    Iterator e = pres.iterator();
+		// -- Set the labels, preconditions and task descompositions of
+		// -- branches in this method.
+		labels = labelsIn;
+		pres = presIn;
+		subs = subsIn;
 
-    //-- For each branch, set the number of variables in the precondition for
-    //-- that branch. This will be used to produce the code that will be used
-    //-- to find bindings, since a binding is an array of this size.
-    while (e.hasNext())
-      ((LogicalPrecondition)e.next()).setVarCount(getHead().getVarCount());
+		// -- Initialize the list of postconditions.
+		postconditions = new LinkedList<LTLExpression>();
+		
+		// -- To iterate over branch preconditions.
+		Iterator e = pres.iterator();
 
-    //-- To iterate over task decompositions.
-    e = subs.iterator();
+		// -- For each branch, set the number of variables in the precondition for
+		// -- that branch. This will be used to produce the code that will be used
+		// -- to find bindings, since a binding is an array of this size.
+		while(e.hasNext())
+			((LogicalPrecondition) e.next()).setVarCount(getHead().getVarCount());
 
-    //-- For each task decomposition, set the number of variables in the task
-    //-- list for that decomposition.
-    while (e.hasNext())
-      ((TaskList)e.next()).setVarCount(getHead().getVarCount());
-  }
+		// -- To iterate over task decompositions.
+		e = subs.iterator();
 
-  /** This function produces the Java code needed to implement this method.
-  */
-  public String toCode()
-  {
-    String s = "";
+		// -- For each task decomposition, set the number of variables in the task
+		// -- list for that decomposition.
+		while(e.hasNext())
+			((TaskList) e.next()).setVarCount(getHead().getVarCount());
+	}
 
-    //-- First produce the initial code for the preconditions of each branch.
-    for (int i = 0; i < pres.size(); i++)
-      s += ((LogicalPrecondition)pres.get(i)).getInitCode();
+	/**
+	 * @param post
+	 *          the postcondition to add to this method.
+	 */
+	public void addPostCondition(LTLExpression post)
+	{
+		postconditions.add(post);
+	}
 
-    //-- The header of the class for this metohd at run time. Note the use of
-    //-- 'getCnt()' to make the name of this class unique.
-    s += "class Method" + getCnt() + " extends Method" + endl + "{" + endl;
+	/**
+	 * This function produces the Java code needed to implement this method.
+	 */
+	public String toCode()
+	{
+		String s = "";
 
-    //-- The constructor of the class.
-    s += "\tpublic Method" + getCnt() + "()" + endl + "\t{" + endl;
+		// -- First produce the initial code for the preconditions of each branch.
+		for(int i = 0; i < pres.size(); i++)
+			s += ((LogicalPrecondition) pres.get(i)).getInitCode();
 
-    //-- Call the constructor of the base class (class 'Method') with the code
-    //-- that produces the head of this method.
-    s += "\t\tsuper(" + getHead().toCode() + ");" + endl;
+		// -- The header of the class for this metohd at run time. Note the use of
+		// -- 'getCnt()' to make the name of this class unique.
+		s += "class Method" + getCnt() + " extends Method" + endl + "{" + endl;
 
-    //-- Allocate the array to keep the possible task lists that represent
-    //-- possible decompositions of this method.
-    s += "\t\tTaskList[] subsIn = new TaskList[" + subs.size() + "];" + endl;
-    s += endl;
+		// -- The constructor of the class.
+		s += "\tpublic Method" + getCnt() + "()" + endl + "\t{" + endl;
 
-    //-- For each possible decomposition,
-    for (int i = 0; i < subs.size(); i++)
-    {
-      if (((TaskList)subs.get(i)).isEmpty())
-        //-- This decomposition is an empty task list.
-        s += "\t\tsubsIn[" + i + "] = TaskList.empty;" + endl;
-      else
-        //-- This decomposition is not an empty task list, so call the function
-        //-- that will produce the task list for this decomposition. This
-        //-- function will be implemented later on. Note the use of variable
-        //-- 'i' to make the header of the function being called unique.
-        s += "\t\tsubsIn[" + i + "] = createTaskList" + i + "();" + endl;
-    }
+		// -- Combine the postconditions into a single rule.
+		LTLExpression singleRule = LTLTrue.getInstance();
 
-    //-- Call the function that sets the method's taks list to the array that
-    //-- was created and initialized.
-    s += endl + "\t\tsetSubs(subsIn);" + endl + "\t}" + endl + endl;
+		// -- If there is only one postcondition
+		if(postconditions.size() == 1)
+		{
+			// -- Our single rule is that one postcondition..
+			singleRule = ControlRules.simplify(postconditions.get(0));
+		}
+		// -- Otherwise, there are two or more control rules
+		else if(postconditions.size() > 1)
+		{
+			// -- Combine all the control rules into a single rule with a conjunction
+			LTLExpression[] conjuncts = postconditions.toArray(new LTLExpression[0]);
+			singleRule = ControlRules.simplify(new LTLConjunction(conjuncts));
+		}
 
-    //-- For each possible decomposition,
-    for (int i = 0; i < subs.size(); i++)
-    {
-      //-- If the decomposition is not an empty list, we need to implement the
-      //-- function that returns this decomposition.
-      if (!((TaskList)subs.get(i)).isEmpty())
-      {
-        //-- The function header.
-        s += "\tTaskList createTaskList" + i + "()" + endl + "\t{" + endl;
+		// -- Call the constructor of the base class (class 'Method') with the code
+		// -- that produces the head of this method.
+		s += "\t\tsuper(" + getHead().toCode() + ", " + singleRule + ");" + endl;
 
-        //-- The code that will produce this task list.
-        s += ((TaskList)subs.get(i)).toCode() + "\t}" + endl + endl;
-      }
-    }
+		// -- Allocate the array to keep the possible task lists that represent
+		// -- possible decompositions of this method.
+		s += "\t\tTaskList[] subsIn = new TaskList[" + subs.size() + "];" + endl;
+		s += endl;
 
-    //-- The function that returns an iterator that can be used to find all the
-    //-- bindings that satisfy a given precondition of this method and return
-    //-- them one-by-one.
-    s += "\tpublic Precondition getIterator(Term[] unifier, int which)" + endl;
-    s += "\t{" + endl + "\t\tPrecondition p;" + endl + endl;
+		// -- For each possible decomposition,
+		for(int i = 0; i < subs.size(); i++)
+		{
+			if(((TaskList) subs.get(i)).isEmpty())
+				// -- This decomposition is an empty task list.
+				s += "\t\tsubsIn[" + i + "] = TaskList.empty;" + endl;
+			else
+				// -- This decomposition is not an empty task list, so call the function
+				// -- that will produce the task list for this decomposition. This
+				// -- function will be implemented later on. Note the use of variable
+				// -- 'i' to make the header of the function being called unique.
+				s += "\t\tsubsIn[" + i + "] = createTaskList" + i + "();" + endl;
+		}
 
-    //-- The switch statement to choose the appropriate precondition.
-    s += "\t\tswitch (which)" + endl + "\t\t{";
+		// -- Call the function that sets the method's taks list to the array that
+		// -- was created and initialized.
+		s += endl + "\t\tsetSubs(subsIn);" + endl + "\t}" + endl + endl;
 
-    //-- For each possible decomposition,
-    for (int i = 0; i < pres.size(); i++)
-    {
-      //-- Retrieve the logical precondition.
-      LogicalPrecondition pre = (LogicalPrecondition)pres.get(i);
+		// -- For each possible decomposition,
+		for(int i = 0; i < subs.size(); i++)
+		{
+			// -- If the decomposition is not an empty list, we need to implement the
+			// -- function that returns this decomposition.
+			if(!((TaskList) subs.get(i)).isEmpty())
+			{
+				// -- The function header.
+				s += "\tTaskList createTaskList" + i + "()" + endl + "\t{" + endl;
 
-      //-- Produce the code that will return the appropriate iterator.
-      s += endl + "\t\t\tcase " + i + ":" + endl + "\t\t\t\tp = ";
-      s += pre.toCode() + ";" + endl;
+				// -- The code that will produce this task list.
+				s += ((TaskList) subs.get(i)).toCode() + "\t}" + endl + endl;
+			}
+		}
 
-      //-- If the logical precondition is marker ':first', set the appropriate
-      //-- flag.
-      if (pre.getFirst())
-        s += "\t\t\t\tp.setFirst(true);" + endl;
+		// -- The function that returns an iterator that can be used to find all the
+		// -- bindings that satisfy a given precondition of this method and return
+		// -- them one-by-one.
+		s += "\tpublic Precondition getIterator(Term[] unifier, int which)" + endl;
+		s += "\t{" + endl + "\t\tPrecondition p;" + endl + endl;
 
-      s += "\t\t\tbreak;";
-    }
+		// -- The switch statement to choose the appropriate precondition.
+		s += "\t\tswitch (which)" + endl + "\t\t{";
 
-    //-- Close the switch statement.
-    s += endl + "\t\t\tdefault:" + endl + "\t\t\t\treturn null;" + endl;
-    s += "\t\t}" + endl;
+		// -- For each possible decomposition,
+		for(int i = 0; i < pres.size(); i++)
+		{
+			// -- Retrieve the logical precondition.
+			LogicalPrecondition pre = (LogicalPrecondition) pres.get(i);
 
-    //-- Reset the precondition and return it.
-    s += endl + "\t\tp.reset();" + endl + endl + "\t\treturn p;" + endl;
+			// -- Produce the code that will return the appropriate iterator.
+			s += endl + "\t\t\tcase " + i + ":" + endl + "\t\t\t\tp = ";
+			s += pre.toCode() + ";" + endl;
 
-    //-- This function returns the label of a given branch of this method.
-    s += "\t}" + endl + endl + "\tpublic String getLabel(int which)" + endl;
+			// -- If the logical precondition is marker ':first', set the appropriate
+			// -- flag.
+			if(pre.getFirst())
+				s += "\t\t\t\tp.setFirst(true);" + endl;
 
-    //-- The switch statement to choose the appropriate label.
-    s += "\t{" + endl + "\t\tswitch (which)" + endl + "\t\t{";
+			s += "\t\t\tbreak;";
+		}
 
-    //-- For each branch;
-    for (int i = 0; i < labels.size(); i++)
-      //-- Return its associated label.
-      s += endl + "\t\t\tcase " + i + ": return \"" + labels.get(i) + "\";";
+		// -- Close the switch statement.
+		s += endl + "\t\t\tdefault:" + endl + "\t\t\t\treturn null;" + endl;
+		s += "\t\t}" + endl;
 
-    //-- Close the switch statement.
-    s += endl + "\t\t\tdefault: return null;" + endl + "\t\t}" + endl;
+		// -- Reset the precondition and return it.
+		s += endl + "\t\tp.reset();" + endl + endl + "\t\treturn p;" + endl;
 
-    //-- Close the function definition and the class definition and return the
-    //-- resulting string.
-    return s + "\t}" + endl + "}" + endl + endl;
-  }
+		// -- This function returns the label of a given branch of this method.
+		s += "\t}" + endl + endl + "\tpublic String getLabel(int which)" + endl;
+
+		// -- The switch statement to choose the appropriate label.
+		s += "\t{" + endl + "\t\tswitch (which)" + endl + "\t\t{";
+
+		// -- For each branch;
+		for(int i = 0; i < labels.size(); i++)
+			// -- Return its associated label.
+			s += endl + "\t\t\tcase " + i + ": return \"" + labels.get(i) + "\";";
+
+		// -- Close the switch statement.
+		s += endl + "\t\t\tdefault: return null;" + endl + "\t\t}" + endl;
+
+		// -- Close the function definition and the class definition and return the
+		// -- resulting string.
+		return s + "\t}" + endl + "}" + endl + endl;
+	}
 }

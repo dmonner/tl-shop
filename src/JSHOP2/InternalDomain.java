@@ -379,7 +379,7 @@ public class InternalDomain
 		else 
 		{
 			// -- Combine all the control rules into a single rule with a conjunction
-			LTLExpression[] conjuncts = controlRules.toArray(new LTLExpression[controlRules.size()]);
+			LTLExpression[] conjuncts = controlRules.toArray(new LTLExpression[0]);
 			LTLExpression singleRule = ControlRules.simplify(new LTLConjunction(conjuncts));
 			s += singleRule.toCode() + ";" + endl + endl;
 		}
@@ -679,7 +679,7 @@ public class InternalDomain
 		else if(controlRules.size() > 1)
 		{
 			// -- Combine all the control rules into a single rule with a conjunction
-			LTLExpression[] conjuncts = controlRules.toArray(new LTLExpression[controlRules.size()]);
+			LTLExpression[] conjuncts = controlRules.toArray(new LTLExpression[0]);
 			LTLExpression singleRule = ControlRules.simplify(new LTLConjunction(conjuncts));
 			s += "\t\td.addControlRules(" + singleRule.toCode() + ");" + endl + endl;
 		}

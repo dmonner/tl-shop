@@ -199,6 +199,10 @@ public class JSHOP2
       //-- rather than the current plan itself since the current plan will be
       //-- changed during the look for other plans.
       else {
+      	//-- Check that the final state satisfies any Eventually conditions
+      	if(!ControlRules.finalize(state, rules))
+      		return false;
+      	
         if (planNo != 1)
           plans.addLast(currentPlan.clone());
         else
@@ -337,6 +341,9 @@ public class JSHOP2
                 //-- decomposition according to this branch of this method.
                 v.tl.replace(v.m[v.j].getSubs()[v.k].bind(v.nextB));
 
+                //TODO: the method has been applied - need to add in any
+                // postconditions it may have to the state.
+                
                 //-- Recursively call the same function to achieve the
                 //-- remaining tasks, but make the function choose its next
                 //-- tasks to achieve to be the substasks of the task we just

@@ -14,15 +14,21 @@ public abstract class Method extends DomainElement
    *  satisfied.
   */
   private TaskList[] subs;
+  
+	/**
+	 * The LTL postcondition of this operator.
+	 */
+  private LTLExpression postcondition;
 
   /** To initialize the method.
    *
    *  @param head
    *          head of the method.
   */
-  public Method(Predicate head)
+  public Method(Predicate head, LTLExpression post)
   {
     super(head);
+    postcondition = post;
   }
 
   /** To get the label of a given branch of this method.
