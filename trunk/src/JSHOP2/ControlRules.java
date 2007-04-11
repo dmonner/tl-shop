@@ -433,6 +433,136 @@ public class ControlRules
 	}
 
 	/**
+	 * This method is to be called when the planning process is finished. It 
+	 * checks that all the implied conditions in the control rules are satisfied
+	 * by the final state. In particular, this will filter out plans where an
+	 * <code>LTLEventually</code> condition never comes to pass.
+	 * 
+	 * @param s the final state produced by a plan.
+	 * @param f the final control rules produced by a plan.
+	 * @return <code>true</code> if the control rules are satisfied by the final
+	 * state; <code>false</code> otherwise.
+	 */
+	public static boolean finalize(State s, LTLExpression f)
+	{
+		if(!f.hasTemporalOperators())
+		{
+			return entails(s, f);
+		}
+		else if(f instanceof LTLConjunction)
+		{
+			LTLExpression[] conj = ((LTLConjunction) f).getConjuncts();
+			
+			for(int i = 0; i < conj.length; i++)
+				if(!finalize(s, conj[i]))
+					return false;
+			
+			return true;
+		}
+		else if(f instanceof LTLDisjunction)
+		{
+			LTLExpression[] disj = ((LTLDisjunction) f).getDisjuncts();
+			
+			for(int i = 0; i < disj.length; i++)
+				if(finalize(s, disj[i]))
+					return true;
+			
+			return false;
+		}
+		else if(f instanceof LTLNegation)
+		{
+			return !finalize(s, ((LTLNegation) f).getOperand());
+		}
+		else if(f instanceof LTLForAll)
+		{
+			LTLAtom premise = ((LTLForAll) f).getPremise();
+			LTLExpression consequent = ((LTLForAll) f).getConsequent();
+
+			Predicate atom = premise.getAtom();
+
+			// get the state's iterator, a helper for s.nextBinding, below
+			MyIterator me = s.iterator(atom.getHead());
+
+			// to hold the new bindings we encounter
+			Term[] newbinding;
+
+			// for each binding that satisfies the premise
+			while((newbinding = s.nextBinding(atom, me)) != null)
+			{
+				// apply the binding to the consequent
+				LTLExpression newConsequent = consequent.applySubstitution(newbinding);
+
+				// if the consequent is not entailed with the new binding
+				if(!finalize(s, newConsequent))
+					// our forall is not satisfied
+					return false;
+			}
+
+			// the state entailed the consequent for all valid premise values,
+			// so our forall is satisfied
+			return true;			
+		}
+		else if(f instanceof LTLExists)
+		{
+			LTLAtom premise = ((LTLExists) f).getPremise();
+			LTLExpression consequent = ((LTLExists) f).getConsequent();
+
+			Predicate atom = premise.getAtom();
+
+			// get the state's iterator, a helper for s.nextBinding, below
+			MyIterator me = s.iterator(atom.getHead());
+
+			// to hold the new bindings we encounter
+			Term[] newbinding;
+
+			// for each binding that satisfies the premise
+			while((newbinding = s.nextBinding(atom, me)) != null)
+			{
+				// apply the binding to the consequent
+				LTLExpression newConsequent = consequent.applySubstitution(newbinding);
+
+				// if the consequent is not entailed with the new binding
+				if(finalize(s, newConsequent))
+					// our exists is satisfied
+					return true;
+			}
+
+			// the state did not entail the consequent for any valid premise values,
+			// so our exists is not satisfied
+			return false;
+		}
+		else if(f instanceof LTLAlways)
+		{
+			// if an Always hasn't been made false yet, it was true all the way
+			// through; this fulfills the Always condition.
+			return true;
+		}
+		else if(f instanceof LTLEventually)
+		{
+			// if an Eventually hasn't been removed yet, that means the condition
+			// never became true; this does not fulfill the Eventually condition.
+			return false;
+		}
+		else if(f instanceof LTLNext)
+		{
+			// any constraints on the Next state are irrelevant, as we are at the
+			// final state.
+			return true;
+		}
+		else if(f instanceof LTLUntil)
+		{
+			// if an Until hasn't been removed yet, that means the first operand has
+			// held the entire time; this fulfills the Until condition.
+			return true;
+		}
+		else
+		{
+			// This should never happen
+			throw new IllegalArgumentException("Formula is malformed.");
+		}
+	}
+	
+	/**
 	 * Determines whether a given LTL control rule is true, false, or undetermined
 	 * in the given state of the world.
 	 * 

@@ -32,6 +32,11 @@ public abstract class Operator extends DomainElement
    *  represents variable's index), otherwise it is -1.
   */
   private int delVarIdx;
+  
+  /** A control rule that must be true when
+   * 
+   */
+  private LTLExpression postcondition;
 
   /** To initialize the operator.
    *
@@ -45,15 +50,18 @@ public abstract class Operator extends DomainElement
    *          not a variable.
    *  @param costIn
    *          the cost of the operator.
+   *  @param postCondIn
+   *  		the LTL postcondition for this operator.
   */
   public Operator(Predicate head, int delVarIdxIn, int addVarIdxIn,
-                  Term costIn)
+                  Term costIn, LTLExpression postCondIn)
   {
     super(head);
 
     delVarIdx = delVarIdxIn;
     addVarIdx = addVarIdxIn;
     cost = costIn;
+    postcondition = postCondIn;
   }
 
   /** This function is used to apply this operator to a given state.
@@ -164,6 +172,11 @@ public abstract class Operator extends DomainElement
         //-- Add it to the current state of the world.
         add[i].add(s, binding, delAdd);
     }
+    
+    //-- Binds this operator's LTL postcondition and adds it to the control 
+    //-- rules for the state.
+    LTLExpression bound = postcondition.applySubstitution(binding);
+    //s.addControlRule(bound);
 
     return true;
   }

@@ -21,8 +21,8 @@
 
 	;; !steal, ?t is the thief, ?v is the victim
     (:operator (!steal ?t ?v)
+               ((hasMoney ?v) (not (same ?v ?t)))
                ((hasMoney ?v))
-               ()
                ((hasMoney ?t)))
 
 	;; !cheat, ?s is the student, ?c is the cheat master
@@ -69,8 +69,13 @@
     		 ((hasMoney ?v) (knowsAnswer ?c))
     		 ((!steal ?s ?v) (graduateDishonestly ?s)))
   
+  
+  ; Axiom for sameness testing
+  (:- (same ?x ?x) nil)
+  
+  
 ;	(:constraint (:always (forall (?x) (knowsAnswer ?x) (:next (not (isDishonest ?x))))))
 ;	(:constraint (:always (forall (?s) (knowsAnswer ?s) (not (isDishonest ?s)))))
-;	(:constraint (:always (:eventually (knowsSubject Nat))))
+;	(:constraint (:eventually (knowsSubject Nat)))
   )
 )
