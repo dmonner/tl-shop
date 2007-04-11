@@ -49,6 +49,16 @@ public abstract class Method extends DomainElement
   {
     return subs;
   }
+  
+  public TaskList apply(State s, int which, Term[] binding)
+  {
+    //-- Binds this method's LTL postcondition and adds it to the control 
+    //-- rules for the state.
+    LTLExpression bound = postcondition.applySubstitution(binding);
+    s.addControlRule(bound);
+  	
+  	return getSubs()[which].bind(binding);
+  }
 
   /** To set the possible decompositions of this method.
    *

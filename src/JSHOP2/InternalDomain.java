@@ -372,7 +372,7 @@ public class InternalDomain
 		}
 		else if(controlRules.size() == 1)
 		{
-			LTLExpression singleRule = ControlRules.simplify(controlRules.get(0));
+			LTLExpression singleRule = LTLExpression.simplify(controlRules.get(0));
 			s += singleRule.toCode() + ";" + endl + endl;
 		}
 		// -- Otherwise, there are two or more control rules
@@ -380,7 +380,7 @@ public class InternalDomain
 		{
 			// -- Combine all the control rules into a single rule with a conjunction
 			LTLExpression[] conjuncts = controlRules.toArray(new LTLExpression[0]);
-			LTLExpression singleRule = ControlRules.simplify(new LTLConjunction(conjuncts));
+			LTLExpression singleRule = LTLExpression.simplify(new LTLConjunction(conjuncts));
 			s += singleRule.toCode() + ";" + endl + endl;
 		}
 
@@ -673,14 +673,14 @@ public class InternalDomain
 		// -- If there are problem-specific rules
 		if(controlRules.size() == 1)
 		{
-			LTLExpression singleRule = ControlRules.simplify(controlRules.get(0));
+			LTLExpression singleRule = LTLExpression.simplify(controlRules.get(0));
 			s += "\t\td.addControlRules(" + singleRule.toCode() + ");" + endl + endl;
 		}
 		else if(controlRules.size() > 1)
 		{
 			// -- Combine all the control rules into a single rule with a conjunction
 			LTLExpression[] conjuncts = controlRules.toArray(new LTLExpression[0]);
-			LTLExpression singleRule = ControlRules.simplify(new LTLConjunction(conjuncts));
+			LTLExpression singleRule = LTLExpression.simplify(new LTLConjunction(conjuncts));
 			s += "\t\td.addControlRules(" + singleRule.toCode() + ");" + endl + endl;
 		}
 		

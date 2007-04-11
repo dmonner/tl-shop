@@ -131,7 +131,7 @@ public abstract class Domain
 	 */
 	public void addControlRules(LTLExpression rules)
 	{
-		controlRules = ControlRules.conjoin(controlRules, rules);
+		controlRules = LTLExpression.conjoin(controlRules, rules);
 	}
 
 	/**
