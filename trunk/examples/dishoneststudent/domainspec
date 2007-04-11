@@ -20,6 +20,11 @@
                ((isPrepared ?s)))
 
 	;; !steal, ?t is the thief, ?v is the victim
+;    (:operator (!steal ?t ?v)
+;               ((hasMoney ?v))
+;               ()
+;               ((hasMoney ?t)))
+               
     (:operator (!steal ?t ?v)
                ((hasMoney ?v) (not (same ?v ?t)))
                ((hasMoney ?v))

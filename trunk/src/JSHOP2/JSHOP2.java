@@ -172,7 +172,7 @@ public class JSHOP2
    *          otherwise.
   */
   private static boolean findPlanHelper(TaskList chosenTask, LTLExpression rules)
-  {
+  {  	
     //-- The local variables we need every time this function is called.
     InternalVars v = new InternalVars();
 
@@ -199,15 +199,25 @@ public class JSHOP2
       //-- rather than the current plan itself since the current plan will be
       //-- changed during the look for other plans.
       else {
+//      	System.out.println("----------------POTENTIAL PLAN---");
+//      	System.out.println(currentPlan);
+
       	//-- Check that the final state satisfies any Eventually conditions
       	if(!ControlRules.finalize(state, rules))
+      	{
+//      		System.out.println("PRUNED!");
+//   	    	System.out.println("---------------------------------");
       		return false;
+      	}
       	
+//      	System.out.println("ADDED!");
+//      	System.out.println("---------------------------------");
+     	
         if (planNo != 1)
           plans.addLast(currentPlan.clone());
         else
           plans.addLast(currentPlan);
-
+        
         return true;
       }
     }
