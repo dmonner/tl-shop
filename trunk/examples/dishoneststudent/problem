@@ -4,7 +4,7 @@
   	(knowsNothing Nat) 
   	(hasMoney     Derek)
   	(hasMoney     Dana)
-  	(knowSubject  Dana)
+  	(knowsSubject  Dana)
   	(knowsAnswer  Derek)
   ) 
   ( 
