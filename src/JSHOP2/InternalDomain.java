@@ -373,7 +373,7 @@ public class InternalDomain
 		else if(controlRules.size() == 1)
 		{
 			LTLExpression singleRule = ControlRules.simplify(controlRules.get(0));
-			s += "\t\td.addControlRules(" + singleRule.toCode() + ");" + endl + endl;
+			s += singleRule.toCode() + ";" + endl + endl;
 		}
 		// -- Otherwise, there are two or more control rules
 		else 
