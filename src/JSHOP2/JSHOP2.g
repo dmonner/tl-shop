@@ -152,14 +152,23 @@ domain throws IOException :
 ;
 
 //-- Planning Domain Element
-pde :
+pde
+  {
+  	// Expression returned from a constraint
+  	LTLExpression lExp;  	
+  }
+:
   method
 |
   op
 |
   axiom
 |
-  constraint
+  lExp = constraint
+    {
+    	//-- Add ltl control rule to domain
+    	domain.addControlRule(lExp);
+    }  
 ;
 
 //-------------------------------- LTL Constraint ---------------------------
@@ -168,10 +177,6 @@ constraint returns [LTLExpression retVal]:
   {
   }
   LP CONSTRAINT retVal = ltlexpr RP
-    {
-    	//-- Add ltl control rule to domain
-    	domain.addControlRule(retVal);
-    }  
 ;
 
 //-- LTL Expression
@@ -363,6 +368,12 @@ method :
 
     //-- The argument list of the head of the method.
     List tn;
+    
+    //-- Internal method that is matched
+    InternalMethod internalMethod = null;
+    
+  	//-- Expression returned from a constraint
+  	LTLExpression lExp = null;  	    
   }
   LP METHOD LP mn:ID tn = terml RP
     (
@@ -393,14 +404,22 @@ method :
       //-- Create the head of the method.
       Predicate p = new Predicate(index, vars.size(), new TermList(tn));
 
-      //-- Create the object that represents the method, and add it to the list
-      //-- of the methods in the domain.
-      domain.addMethod(new InternalMethod(p, labels, pres, subs));
-
+      //-- Create the object that represents the method
+      internalMethod = new InternalMethod(p, labels, pres, subs);
     }
-  (constraint)*
+  (
+  	lExp = constraint
+  	{
+  		if (internalMethod != null && lExp != null)
+  			internalMethod.addPostCondition(lExp);  		
+  	}
+  )*
     {
-    	      //-- The scope for the variables in a method is within that method, so as
+      //-- Add object that represents the method to the list
+      //-- of the methods in the domain.
+      domain.addMethod(internalMethod);
+      
+      //-- The scope for the variables in a method is within that method, so as
       //-- soon as we get out of the method body we should empty our list of
       //-- variables after updating the value of 'varsMaxSize'.
       if (vars.size() > varsMaxSize)
@@ -429,6 +448,9 @@ op :
 
     //-- The argument list of the head of the operator.
     List tn;
+
+  	//-- Expression returned from a constraint
+  	LTLExpression lExp = null;  	    
   }
   LP OPERATOR LP on:OPID tn = terml RP pre = lp del = da add = da
     (
@@ -442,14 +464,23 @@ op :
       //-- Create the head of the operator.
       Predicate p = new Predicate(index, vars.size(), new TermList(tn));
 
-      //-- Create the object that represents the operator, and add it to the
-      //-- list of the operators in the domain.
-      domain.addOperator(new InternalOperator(p, pre, del, add, cost));
+      //-- Create the object that represents the operator
+      InternalOperator internalOperator = new InternalOperator(p, pre, del, add, cost);
 
     }
-  (constraint)*
+  (
+  	lExp = constraint
+  	{
+  		if (internalOperator != null && lExp != null)
+  			internalOperator.addPostCondition(lExp);  		
+  	}
+  )*
     {
-    	      //-- The scope for the variables in an operator is within that operator,
+      //-- Add the object that represents the operator to the
+      //-- list of the operators in the domain.
+      domain.addOperator(internalOperator);
+      
+      //-- The scope for the variables in an operator is within that operator,
       //-- so as soon as we get out of the operator body we should empty our
       //-- list of variables after updating the value of 'varsMaxSize'.
       if (vars.size() > varsMaxSize)
