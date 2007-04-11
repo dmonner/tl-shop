@@ -229,6 +229,7 @@ public class LTLParserTest extends TestCase {
 	public void testImply() {
 		String parseString = "(:constraint (:until (:next (dummy)) (ishot ?x)))";
 		//parseString = "(:constraint (exists () (ishot ?x) (ishot ?x)))";
+		parseString = "(:constraint (:always (forall (?x) (knowsAnswer ?x) (:next (not (isDishonest ?s))))))";
 		System.out.println( parseConstraint(parseString) );
 	}
 }

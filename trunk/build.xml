@@ -17,12 +17,6 @@
 	<property name="build.args" value="JSHOP2.g" />
 	<property name="build.jar" value="bin/JSHOP2.jar" />
 	
-	<!-- Properties that should be changed for each run -->
-	<property name="working.dir" value="${default.working.dir}" />
-	<property name="domain.name" value="${default.domain.name}" />
-	<property name="problem.name" value="${default.problem.name}" />
-	<property name="plan.count" value="${default.plan.count}" />
-
 
 	<!-- BUILD TARGETS -->
 	
@@ -58,8 +52,19 @@
 	
 	<!-- RUN TARGETS -->
 	
+	<!-- Default properties used by run.example, set from local.properties or 
+	     build.properties. Override these settings by setting them in your target 
+	     before calling run.example -->
+	<target name="set.defaults">
+		<property name="working.dir" value="${default.working.dir}" />
+		<property name="domain.name" value="${default.domain.name}" />
+		<property name="problem.name" value="${default.problem.name}" />
+		<property name="plan.count" value="${default.plan.count}" />
+	</target>
+	
+	
 	<!-- Run an example given the current properties -->	
-	<target name="run.example" depends="ifne">
+	<target name="run.example" depends="ifne,set.defaults">
 		<echo message="Running ${working.dir}"/>
 		<java classname="JSHOP2.InternalDomain" dir="${working.dir}" 	
 				fork="true" failonerror="true" classpath="${classpath}">
@@ -87,26 +92,29 @@
 
 	<!-- EXAMPLE TARGETS -->
 	
-	<target name="set.defaults">
-		<property name="working.dir" value="${default.working.dir}" />
-		<property name="domain.name" value="${default.domain.name}" />
-		<property name="problem.name" value="${default.problem.name}" />
-		<property name="plan.count" value="${default.plan.count}" />
-	</target>
-	
-	<target name="run.basic" depends="set.defaults">
+	<target name="run.basic">
 		<property name="working.dir" value="examples/basic" />
 		<property name="domain.name" value="basic" />
+		<property name="problem.name" value="problem" />
 		
 		<antcall target="run.example" />
 	</target>
 	
-	<target name="run.basicltl" depends="set.defaults">
+	<target name="run.basicltl">
 		<property name="working.dir" value="examples/basicltl" />
 		<property name="domain.name" value="basicltl" />
+		<property name="problem.name" value="problem" />
 		
 		<antcall target="run.example" />
 	</target>
 	
+	<target name="run.dishoneststudent">
+		<property name="working.dir" value="examples/dishoneststudent" />
+		<property name="domain.name" value="domainspec" />
+		<property name="problem.name" value="problem" />
+		<property name="plan.count" value="5" />
+		
+		<antcall target="run.example" />
+	</target>
 
 </project>
