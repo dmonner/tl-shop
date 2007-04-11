@@ -23,7 +23,9 @@
     (:operator (!steal ?t ?v)
                ((hasMoney ?v))
                ()
-               ((hasMoney ?t) (isDishonest ?t)))
+               ((hasMoney ?t) (isDishonest ?t))
+;			   (:constraint (not (isDishonest ?t)))
+               )
 
 	;; !cheat, ?s is the student, ?c is the cheat master
     (:operator (!cheat ?s ?c)
@@ -35,7 +37,9 @@
     (:operator (!writeExam ?s)
                ((isPrepared ?s))
                ()
-               ((passedExam ?s)))
+               ((passedExam ?s))
+;			   (:constraint (not (isDishonest ?s)))
+               )
 
 
 	;; -------
@@ -47,12 +51,20 @@
     		 ((knowsSubject ?s))
     		 ((graduateHonestly ?s))
     		 ((knowsNothing ?s) (knowsSubject ?t))
-    		 ((!learn ?s ?t) (graduateHonestly ?s)))
+    		 ((!learn ?s ?t) (graduateHonestly ?s))
+;			 (:constraint (:always (forall (?s) (hasMoney ?s) (not (isDishonest ?s)))))
+;			 (:constraint (:always (not (isDishonest ?s))))
+;			 (:constraint (not (isDishonest ?s)))
+    		 )
   
     ;; Goal Method 2, ?s is a student
 	(:method (graduate ?s)
     		 ()
-    		 ((graduateDishonestly ?s)))
+    		 ((graduateDishonestly ?s))
+;			 (:constraint (:always (forall (?s) (hasMoney ?s) (not (isDishonest ?s)))))
+;			 (:constraint (:always (not (isDishonest ?s))))
+;			 (:constraint (not (isDishonest ?s)))
+    		 )
 
 	;; Graduate without cheating    		 
 	(:method (graduateHonestly ?s)
