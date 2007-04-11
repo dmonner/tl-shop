@@ -70,7 +70,7 @@
     		 ((!steal ?s ?v) (graduateDishonestly ?s)))
   
 ;	(:constraint (:always (forall (?x) (knowsAnswer ?x) (:next (not (isDishonest ?x))))))
-;	(:constraint (:always (forall (?x) (knowsAnswer ?x) (not (isDishonest ?x)))))
+;	(:constraint (:always (forall (?s) (knowsAnswer ?s) (not (isDishonest ?s)))))
 ;	(:constraint (:always (:eventually (knowsSubject Nat))))
   )
 )
