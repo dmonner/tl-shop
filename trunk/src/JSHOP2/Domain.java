@@ -123,6 +123,18 @@ public abstract class Domain
 	}
 
 	/**
+	 * Adds problem-specific control rules to the domain by conjoining them with
+	 * the domain control rules.
+	 * 
+	 * @param rules
+	 *          the problem-specific control rules to add.
+	 */
+	public void addControlRules(LTLExpression rules)
+	{
+		controlRules = ControlRules.conjoin(controlRules, rules);
+	}
+
+	/**
 	 * This function sets the array of <code>String</code> representations of
 	 * constant symbols that do not appear in the domain description but in the
 	 * planning problem that is being solved.

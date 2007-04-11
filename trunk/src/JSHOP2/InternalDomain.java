@@ -370,18 +370,17 @@ public class InternalDomain
 			// -- The single control rule will be null
 			s += "LTLTrue.getInstance();" + endl + endl;
 		}
-		// -- If there is exactly one control rule
 		else if(controlRules.size() == 1)
 		{
-			// -- Add it as the single control rule
-			s += controlRules.get(0).toCode() + ";" + endl + endl;
+			LTLExpression singleRule = ControlRules.simplify(controlRules.get(0));
+			s += "\t\td.addControlRules(" + singleRule.toCode() + ");" + endl + endl;
 		}
 		// -- Otherwise, there are two or more control rules
 		else 
 		{
 			// -- Combine all the control rules into a single rule with a conjunction
 			LTLExpression[] conjuncts = controlRules.toArray(new LTLExpression[controlRules.size()]);
-			LTLExpression singleRule = new LTLConjunction(conjuncts);
+			LTLExpression singleRule = ControlRules.simplify(new LTLConjunction(conjuncts));
 			s += singleRule.toCode() + ";" + endl + endl;
 		}
 
@@ -671,6 +670,20 @@ public class InternalDomain
 		// -- domain.
 		s += "\t\tDomain d = new " + name + "();" + endl + endl;
 
+		// -- If there are problem-specific rules
+		if(controlRules.size() == 1)
+		{
+			LTLExpression singleRule = ControlRules.simplify(controlRules.get(0));
+			s += "\t\td.addControlRules(" + singleRule.toCode() + ");" + endl + endl;
+		}
+		else if(controlRules.size() > 1)
+		{
+			// -- Combine all the control rules into a single rule with a conjunction
+			LTLExpression[] conjuncts = controlRules.toArray(new LTLExpression[controlRules.size()]);
+			LTLExpression singleRule = ControlRules.simplify(new LTLConjunction(conjuncts));
+			s += "\t\td.addControlRules(" + singleRule.toCode() + ");" + endl + endl;
+		}
+		
 		// -- Call the function that passes this array to the the object that
 		// -- represents the domain.
 		s += "\t\td.setProblemConstants(defineConstants());" + endl + endl;
