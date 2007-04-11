@@ -20,15 +20,10 @@
                ((isPrepared ?s)))
 
 	;; !steal, ?t is the thief, ?v is the victim
-;    (:operator (!steal ?t ?v)
-;               ((hasMoney ?v))
-;               ()
-;               ((hasMoney ?t)))
-               
     (:operator (!steal ?t ?v)
-               ((hasMoney ?v) (not (same ?v ?t)))
                ((hasMoney ?v))
-               ((hasMoney ?t)))
+               ()
+               ((hasMoney ?t) (isDishonest ?t)))
 
 	;; !cheat, ?s is the student, ?c is the cheat master
     (:operator (!cheat ?s ?c)
@@ -81,6 +76,9 @@
   
 ;	(:constraint (:always (forall (?x) (knowsAnswer ?x) (:next (not (isDishonest ?x))))))
 ;	(:constraint (:always (forall (?s) (knowsAnswer ?s) (not (isDishonest ?s)))))
+;	(:constraint (:always (forall (?s) (hasMoney ?s) (not (isDishonest ?s)))))
 ;	(:constraint (:eventually (knowsSubject Nat)))
+;	(:constraint (:always (not (hasMoney Nat))))
+
   )
 )
