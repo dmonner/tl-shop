@@ -87,7 +87,7 @@ class InternalVars
     /** The control rules that apply to the current state. These are maintained
      *  locally for backtracking purposes.
      */
-    LTLExpression c;
+    LTLExpression rules;
 }
 
 /** This class is the implementation of the JSHOP2 algorithm.
@@ -137,11 +137,14 @@ public class JSHOP2
     //-- Initialize the plan list to an empty one.
     plans = new LinkedList();
 
+  	// add the domain rules to the state's rules
+  	state.addControlRule(domain.getControlRules());
+
   	//-- If the initial state doesn't satisfy the control rules, there will
   	//-- be no plans.
-  	LTLExpression rules = ControlRules.progress(state, domain.getControlRules());
-  	if(rules instanceof LTLFalse)
+  	if(!state.progress())
   		return plans;
+  	
   	
     //-- Initialize the current plan to an empty one.
     currentPlan = new Plan();
@@ -152,7 +155,7 @@ public class JSHOP2
     planNo = planNoIn;
 
     //-- Call the helper function.
-    findPlanHelper(tasks, rules);
+    findPlanHelper(tasks);
 
     //-- Return the found plan(s).
     return plans;
@@ -171,7 +174,7 @@ public class JSHOP2
    *          <code>true</code> if a plan is found, <code>false</code>
    *          otherwise.
   */
-  private static boolean findPlanHelper(TaskList chosenTask, LTLExpression rules)
+  private static boolean findPlanHelper(TaskList chosenTask)
   {  	
     //-- The local variables we need every time this function is called.
     InternalVars v = new InternalVars();
@@ -192,7 +195,7 @@ public class JSHOP2
       //-- and not the whole task network. Therefore, try to achieve the rest
       //-- of the task network.
       if (chosenTask != tasks)
-        return findPlanHelper(tasks, rules);
+        return findPlanHelper(tasks);
       //-- Otherwise, add the current plan to the list of the plans for the
       //-- given task network. Note that in the case where we are looking for
       //-- more than one plan, we add a clone of the current plan to the list
@@ -203,7 +206,7 @@ public class JSHOP2
 //      	System.out.println(currentPlan);
 
       	//-- Check that the final state satisfies any Eventually conditions
-      	if(!ControlRules.finalize(state, rules))
+      	if(!state.isValidFinalState())
       	{
 //      		System.out.println("PRUNED!");
 //   	    	System.out.println("---------------------------------");
@@ -269,38 +272,32 @@ public class JSHOP2
               //-- Merge the two bindings.
               Term.merge(v.nextB, v.binding);
 
+              //-- Save the current control rules in case of a backtrack later.
+              v.rules = state.getControlRules();
+              
               //-- If the operator is applicable, apply it, and,
               if (v.o[v.j].apply(v.nextB, state, v.delAdd))
-              {
-              	//-- Apply the control rules to the new state generated in the 
-              	//-- previous if statement.
-              	v.c = ControlRules.progress(state, rules);
-              	
-              	//-- if the state verifiably does not satisfy the rules
-              	//-- then we will prune this branch and undo the state change
-              	//-- below.
-              	if(!(v.c instanceof LTLFalse))
-              	{
-	                //-- Add the instance of the operator that achieved this task
-	                //-- to the beginning of the plan, remembering how much it
-	                //-- cost.
-	                double cost = currentPlan.addOperator(v.o[v.j], v.nextB);
-	
-	                //-- Recursively call the same function to achieve the
-	                //-- remaining tasks. If a plan is found for the remaining
-	                //-- tasks and we have found the maximum number of plans we are
-	                //-- allowed, return true.
-	                if (findPlanHelper(tasks, v.c) && plans.size() >= planNo)
-	                  return true;
-	
-	                //-- Remove the operator from the current plan.
-	                currentPlan.removeOperator(cost);
-              	}
+              {              	
+                //-- Add the instance of the operator that achieved this task
+                //-- to the beginning of the plan, remembering how much it
+                //-- cost.
+                double cost = currentPlan.addOperator(v.o[v.j], v.nextB);
+
+                //-- Recursively call the same function to achieve the
+                //-- remaining tasks. If a plan is found for the remaining
+                //-- tasks and we have found the maximum number of plans we are
+                //-- allowed, return true.
+                if (findPlanHelper(tasks) && plans.size() >= planNo)
+                  return true;
+
+                //-- Remove the operator from the current plan.
+                currentPlan.removeOperator(cost);
               }
 
               //-- Undo the changes that were the result of applying this
               //-- operator, because we are backtracking here.
               state.undo(v.delAdd);
+              state.undo(v.rules);
             }
           }
         }
@@ -347,9 +344,12 @@ public class JSHOP2
                 //-- Merge the two bindings.
                 Term.merge(v.nextB, v.binding);
 
+                //-- Store the current control rules in case of a backtrack.
+                v.rules = state.getControlRules();
+                
                 //-- Replace the decomposed task in task list with its
                 //-- decomposition according to this branch of this method.
-                v.tl.replace(v.m[v.j].getSubs()[v.k].bind(v.nextB));
+                v.tl.replace(v.m[v.j].apply(state, v.k, v.nextB));
 
                 //TODO: the method has been applied - need to add in any
                 // postconditions it may have to the state.
@@ -360,7 +360,7 @@ public class JSHOP2
                 //-- decomposed, till an operator is seen and applied, or this
                 //-- whole task is achieved without seeing an operator (i.e.,
                 //-- this task was decomposed to an empty task list).
-                if (findPlanHelper(v.tl, rules) && plans.size() >= planNo)
+                if (findPlanHelper(v.tl) && plans.size() >= planNo)
                   //-- A full plan is found, return true.
                   return true;
 
@@ -374,6 +374,7 @@ public class JSHOP2
                 //-- Undo the changes in the task list, because this particular
                 //-- decomposition failed.
                 v.tl.undo();
+                state.undo(v.rules);
               }
             }
           }

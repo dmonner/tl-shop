@@ -216,14 +216,14 @@ public class InternalOperator extends InternalElement
 		if(postconditions.size() == 1)
 		{
 			// -- Our single rule is that one postcondition..
-			singleRule = ControlRules.simplify(postconditions.get(0));
+			singleRule = LTLExpression.simplify(postconditions.get(0));
 		}
 		// -- Otherwise, there are two or more control rules
 		else if(postconditions.size() > 1)
 		{
 			// -- Combine all the control rules into a single rule with a conjunction
 			LTLExpression[] conjuncts = postconditions.toArray(new LTLExpression[0]);
-			singleRule = ControlRules.simplify(new LTLConjunction(conjuncts));
+			singleRule = LTLExpression.simplify(new LTLConjunction(conjuncts));
 		}
 
 		// -- Call the constructor of the base class (class 'Operator') with the

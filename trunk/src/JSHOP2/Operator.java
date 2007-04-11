@@ -176,9 +176,13 @@ public abstract class Operator extends DomainElement
     //-- Binds this operator's LTL postcondition and adds it to the control 
     //-- rules for the state.
     LTLExpression bound = postcondition.applySubstitution(binding);
-    //s.addControlRule(bound);
-
-    return true;
+    s.addControlRule(bound);
+    
+    //-- See if we can progress the state after this operator's application and
+    //-- the addition of its postconditions - if not, operator is not
+    //-- applicable. Don't worry about the changes we made above:
+    //-- The appropriate undo() calls will be made in JSHOP2.findPlanHelper()
+    return s.progress();
   }
 
   /** To get the cost of this operator.
