@@ -1,0 +1,76 @@
+;; The dishonest student domain
+;; How will the student fair on the exam
+
+(defdomain domainspec
+  (
+	;; ---------
+    ;; operators
+    ;; - - - - -
+
+	;; !learn, ?s is the student, ?t is the teacher
+    (:operator (!learn ?s ?t)
+               ((knowsSubject ?t) (knowsNothing ?s))
+               ((knowsNothing ?s))
+               ((knowsSubject ?s)))
+
+	;; !study, ?s is the student
+    (:operator (!study ?s)
+               ((knowsSubject ?s))
+               ()
+               ((isPrepared ?s)))
+
+	;; !steal, ?t is the thief, ?v is the victim
+    (:operator (!steal ?t ?v)
+               ((hasMoney ?v))
+               ()
+               ((hasMoney ?t)))
+
+	;; !cheat, ?s is the student, ?c is the cheat master
+    (:operator (!cheat ?s ?c)
+               ((hasMoney ?s) (knowsAnswer ?c))
+               ((knowsNothing ?s))
+               ((isPrepared ?s) (isDishonest ?s) (isDishonest ?c)))
+
+	;; !writeExam, ?s is the student
+    (:operator (!writeExam ?s)
+               ((isPrepared ?s))
+               ()
+               ((passedExam ?s)))
+
+
+	;; -------
+    ;; Methods
+    ;; - - - -
+    
+    ;; Goal Method 1, ?s is a student
+	(:method (graduate ?s)
+    		 ((knowsSubject ?s))
+    		 ((graduateHonestly ?s))
+    		 ((knowsNothing ?s) (knowsSubject ?t))
+    		 ((!learn ?s ?t) (graduateHonestly ?s)))
+  
+    ;; Goal Method 2, ?s is a student
+	(:method (graduate ?s)
+    		 ()
+    		 ((graduateDishonestly ?s)))
+
+	;; Graduate without cheating    		 
+	(:method (graduateHonestly ?s)
+    		 ((knowsSubject ?s) (not (knowsNothing ?s)))
+    		 ((!study ?s) (!writeExam ?s)))
+  
+  	;; Graduate with a little assistance
+	(:method (graduateDishonestly ?s)
+    		 ((hasMoney ?s) (knowsAnswer ?c))
+    		 ((!cheat ?s ?c) (!writeExam ?s)))
+  
+  	;; Graduate with a little assistance
+	(:method (graduateDishonestly ?s)
+    		 ((hasMoney ?v) (knowsAnswer ?c))
+    		 ((!steal ?s ?v) (graduateDishonestly ?s)))
+  
+;	(:constraint (:always (forall (?x) (knowsAnswer ?x) (:next (not (isDishonest ?x))))))
+;	(:constraint (:always (forall (?x) (knowsAnswer ?x) (not (isDishonest ?x)))))
+;	(:constraint (:always (:eventually (knowsSubject Nat))))
+  )
+)
