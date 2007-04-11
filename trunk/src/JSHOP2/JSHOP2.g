@@ -397,15 +397,17 @@ method :
       //-- of the methods in the domain.
       domain.addMethod(new InternalMethod(p, labels, pres, subs));
 
-      //-- The scope for the variables in a method is within that method, so as
+    }
+  (constraint)*
+    {
+    	      //-- The scope for the variables in a method is within that method, so as
       //-- soon as we get out of the method body we should empty our list of
       //-- variables after updating the value of 'varsMaxSize'.
       if (vars.size() > varsMaxSize)
         varsMaxSize = vars.size();
 
-      vars.clear();
+      vars.clear();    	
     }
-  (constraint)*
   RP
 ;
 
@@ -444,7 +446,10 @@ op :
       //-- list of the operators in the domain.
       domain.addOperator(new InternalOperator(p, pre, del, add, cost));
 
-      //-- The scope for the variables in an operator is within that operator,
+    }
+  (constraint)*
+    {
+    	      //-- The scope for the variables in an operator is within that operator,
       //-- so as soon as we get out of the operator body we should empty our
       //-- list of variables after updating the value of 'varsMaxSize'.
       if (vars.size() > varsMaxSize)
@@ -452,7 +457,6 @@ op :
 
       vars.clear();
     }
-  (constraint)*
   RP
 ;
 
