@@ -350,9 +350,6 @@ public class JSHOP2
                 //-- Replace the decomposed task in task list with its
                 //-- decomposition according to this branch of this method.
                 v.tl.replace(v.m[v.j].apply(state, v.k, v.nextB));
-
-                //TODO: the method has been applied - need to add in any
-                // postconditions it may have to the state.
                 
                 //-- Recursively call the same function to achieve the
                 //-- remaining tasks, but make the function choose its next
