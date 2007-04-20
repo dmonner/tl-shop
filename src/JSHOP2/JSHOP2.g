@@ -82,6 +82,10 @@ prob throws IOException :
       //-- The list of task lists, one for each planning problem in this
       //-- domain.
       LinkedList taskLists = new LinkedList();
+      
+	  // Expression returned from a constraint
+	  LTLExpression lExp;  	
+      
     }
   (
     {
@@ -122,7 +126,13 @@ prob throws IOException :
       taskLists.add(tList);
     }
   )+
-  (constraint)*
+  (
+  	lExp = constraint
+  	{
+    	//-- Add ltl control rule to domain
+    	domain.addControlRule(lExp);  			  		
+  	}
+  )*
   RP
     {
       //-- Convert the command to Java code and write it.

@@ -12,5 +12,5 @@
   	(graduate Nat) 
   )
   
-;  (:constraint (:always (dummy)))
+;  	(:constraint (:always (not (hasMoney Nat))))
 )
