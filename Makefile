@@ -88,3 +88,11 @@ d: src/JSHOP2/*.java
 	cd examples/basicltl; javac problem.java
 	cd examples/basicltl; java problem
 	cd examples/basicltl; rm basicltl.java; rm basicltl.txt; rm problem.java; rm *.class
+	
+12: bin/JSHOP2.jar
+	cd examples/dishoneststudent; java JSHOP2.InternalDomain domainspec
+	cd examples/dishoneststudent; java JSHOP2.InternalDomain -r problem
+	cd examples/dishoneststudent; javac problem.java
+	cd examples/dishoneststudent; java problem
+	cd examples/dishoneststudent; rm domainspec.java; rm domainspec.txt; rm problem.java; rm *.class
+	
