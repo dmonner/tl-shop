@@ -1,0 +1,118 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm, alltt, graphicx, subfigure}
+\usepackage[top=1.5in, bottom=1.25in, left=1.25in, right=1.25in]{geometry}
+\begin{document}
+\input{./title.tex}
+
+\section{Introduction}
+Hierarchal Task Network (HTN) planning requires describing a goal state as a 
+set of high-level tasks which will achieve that state, and involves achieving 
+the required tasks by recursively breaking them into smaller and smaller 
+subtasks \cite{nau2004apt}. Put simply, HTN planning, describes in detail a 
+subset of  solutions the planner is allowed to try. On the other hand, the 
+control rule planning paradigm is a standard forward search procedure enhanced 
+by control rules written in a modal logic such as Linear Temporal Logic (LTL) 
+that are used to prune the search space by describing which states are 
+undesirable or will never lead to a solution \cite{nau2004apt}. In short, 
+control rule planning tells the planner which branches not to follow.
+
+The product of this work, a planner called TL-SHOP, combines these two 
+paradigms in an effort to increase the flexibility afforded to writers of 
+planning domains and problems.
+
+\section{Related Work}
+TLPlan\cite{bacchus1996utl} is a well-known implementation of the control rule 
+planning paradigm. Our approach to processing Linear Temporal Logic is based on 
+a simplification of the strategy used in TLPlan\cite{nau2004apt}.
+
+JSHOP2\cite{ilghami:dj} is an existing state-of-the-art domain-configurable HTN 
+planner written in Java. JSHOP2 is unique in that it compiles a planning domain 
+and problem into a domain-specific planner in order to increase efficiency 
+\cite{ilghami2003gas}. TL-SHOP builds upon JSHOP2 by adding temporal 
+constraints in Linear Temporal Logic at several levels, as discussed in the 
+following section.
+
+\section{Implementation}
+We augmented JSHOP2 with control rules in three simple ways. First, TL-SHOP 
+allows the addition of global control rules to the specification of the 
+planning domain. As time progresses, if any of the control rules become 
+verifiably false, the planner explores no further down that path. This behavior 
+is analogous to the way control rules are expressed in TLPlan, and allows us to 
+prune partial plans whenever a new operator is inserted (as this changes the 
+current state on which the planner is focusing).
+
+TL-SHOP allows a second type of control rule which is a simple extension of the 
+first: problem-specific control rules. These rules are more or less treated the 
+same as global domain control rules, except that they can be changed from 
+problem to problem without the user needing to change the domain specification. 
+They are meant to allow users to impose additional, non-domain-specific 
+constraints. For example, in the well-known blocks world domain, a user could 
+specify that a certain block must never be placed on the table. This control 
+rule is not appropriate for the blocks world domain itself, since it may remove 
+some or all valid plans, but in effect it creates a customized subdomain for 
+this particular problem instance.
+
+Finally, TL-SHOP allows the specification of method and operator postconditions 
+as LTL formulas. When an operator or method with a postcondition is applied, 
+its postcondition is added to the set of applicable control rules for every 
+path in the search space below the applied method or operator. Returning to the 
+blocks world domain for another example, the $stack(a, b)$ operator might have 
+the postcondition $\square on(a, b)$ (``always $on(a, b)$''), which is a simple 
+but effective way to satisfy the constraint that if one stacks a block, it 
+should be in its goal location.
+
+The following sections will cover the main pieces of the implementation in 
+detail, as well as some limitations of the software.
+
+\subsection{Extended Domain and Problem Parsers}
+
+
+\subsection{Linear Temporal Logic Inference Engine}
+Our LTL inference engine is based on the $progress$ function from 
+\cite{nau2004apt}. Applying an operator during the HTN planning process changes 
+the state of the world, which necessitates a call to the $progress$ function. 
+The $progress$ function simultaneously evaluates the current set of control 
+rules in the new state, and derives the set of control rules that will be 
+applicable to the next state encountered. It relies on the same atom entailment 
+and variable binding procedures used during the HTN planning process.
+
+In addition to the $progress$ function, we were required to implement a 
+function to be called whenever a solution plan is found, that verifies that the 
+final world state is a valid one. The semantics of the $\lozenge p$ 
+(``eventually $p$'') expression require that $p$ become true at some point, at 
+which point $\lozenge p$ disappears from the control rule. As such, an 
+$\lozenge p$ expression present in the control rules progressed through the 
+final state can potentially invalidate the solution plan.
+
+\subsection{Limitations} 
+The LTL constraint computations in TL-SHOP are not compiled in the same way 
+that the HTN problems were in JSHOP2. In fact, we feel that the progressions of 
+LTL formulas computed by the LTL inference engine do not lend themselves to 
+compilation in any obvious way. As such, the LTL inference engine in TL-SHOP 
+takes a considerable performance hit because it needs to allocate and 
+deallocate memory during the planning process, which JSHOP2 managed to avoid.
+
+The LTL operators $\forall$ (``forall'') and $\exists$ (``exists'') take as 
+their first argument not an unbound variable, but instead a logical atom that 
+contains a single unbound variable. Ideally, this atom has a small number of 
+ground instances, and so the combinatorial explosion generally produced by 
+these statements is controlled.
+
+TL-SHOP does not support function symbols in LTL expressions, as we lacked 
+enough time to properly implement such functionality.
+
+\section{Examples}
+
+
+\section{Conclusion}
+TL-SHOP does what we set out to do---combine Hierarchal Task Network planning 
+with the control rule planning paradigm in such a way as to increase domain and 
+problem specification flexibility. It currently lags far behind JSHOP2 in 
+performance, but this could be remedied by future work which discovers a way to 
+extend JSHOP2's domain and problem compilation process to include progressions 
+of LTL formulas.
+
+\bibliographystyle{plain}
+\bibliography{final_paper}
+
+\end{document}
