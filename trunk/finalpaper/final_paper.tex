@@ -65,7 +65,14 @@ The following sections will cover the main pieces of the implementation in
 detail, as well as some limitations of the software.
 
 \subsection{Extended Domain and Problem Parsers}
-
+The domain and problem input is provided using a lisp-like syntax which is
+parsed by an ANTLR parser. TL-SHOP builds on the syntax in JSHOP2 and follows
+many of the same conventions. Each new constraint is prefixed by a $constraint$
+label followed by a logic expression optionally including temporal operators. The temporal
+logic operators are symbolized by $next$, $always$, $until$, and $eventually$
+labels. These five new labels are prefixed by a single colon to distinguish them
+as keywords. In the example above, the postcondition $\square on(a, b)$ would be
+encoded as $(:constraint (:always (on ?a ?b)))$
 
 \subsection{Linear Temporal Logic Inference Engine}
 Our LTL inference engine is based on the $progress$ function from 
