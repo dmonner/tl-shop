@@ -47,7 +47,9 @@ commands can be used at the command line:
 
 - make 10: To run the tenth example, a very small blocks world problem where
            all plans, rather than just the first one found, are to be returned.
+- make 11: To run the first LTL example, basicltl.
 
+- make 12: To run the second LTL example, dishoneststudent.
 -----------------------------------------------------------------
 The important files and directories in this release of JSHOP2:
 
@@ -81,3 +83,8 @@ The important files and directories in this release of JSHOP2:
 ./examples/forall : A very simple domain that uses forall constructs.
 ./examples/rover : Our implementation of the Rovers domain, used in the Third
                    International Planning Competition.
+./examples/basicltl: A modification of the basic domain to show off the use of
+                     LTL formulas for plan pruning.
+./examples/dishoneststudent: A domain that describes how to graduate. LTL rules
+                             can be used in a number of ways to prune plans 
+                             involving dishonesty.
