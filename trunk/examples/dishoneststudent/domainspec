@@ -1,96 +1,100 @@
 ;; The dishonest student domain
-;; How will the student fair on the exam
+;; How will the student fair on the exam? In this domain, there are several ways
+;; to pass your exams and graduate, some of which involve cheating. Several
+;; possible LTL constraints are commented out below, most of which attempt
+;; to prune away the "dishonest" plans in interesting ways. Uncomment a few
+;; to see how they work together!
 
 (defdomain domainspec
   (
-	;; ---------
+    ;; ---------
     ;; operators
     ;; - - - - -
 
-	;; !learn, ?s is the student, ?t is the teacher
+    ;; !learn, ?s is the student, ?t is the teacher
     (:operator (!learn ?s ?t)
                ((knowsSubject ?t) (knowsNothing ?s))
                ((knowsNothing ?s))
                ((knowsSubject ?s)))
 
-	;; !study, ?s is the student
+    ;; !study, ?s is the student
     (:operator (!study ?s)
                ((knowsSubject ?s))
                ()
                ((isPrepared ?s)))
 
-	;; !steal, ?t is the thief, ?v is the victim
+    ;; !steal, ?t is the thief, ?v is the victim
     (:operator (!steal ?t ?v)
                ((hasMoney ?v))
                ()
                ((hasMoney ?t) (isDishonest ?t))
-;			   (:constraint (not (isDishonest ?t)))
+;               (:constraint (not (isDishonest ?t)))
                )
 
-	;; !cheat, ?s is the student, ?c is the cheat master
+    ;; !cheat, ?s is the student, ?c is the cheat master
     (:operator (!cheat ?s ?c)
                ((hasMoney ?s) (knowsAnswer ?c))
                ((knowsNothing ?s))
                ((isPrepared ?s) (isDishonest ?s) (isDishonest ?c)))
 
-	;; !writeExam, ?s is the student
+    ;; !writeExam, ?s is the student
     (:operator (!writeExam ?s)
                ((isPrepared ?s))
                ()
                ((passedExam ?s))
-;			   (:constraint (not (isDishonest ?s)))
+;               (:constraint (not (isDishonest ?s)))
                )
 
 
-	;; -------
+    ;; -------
     ;; Methods
     ;; - - - -
     
     ;; Goal Method 1, ?s is a student
-	(:method (graduate ?s)
-    		 ((knowsSubject ?s))
-    		 ((graduateHonestly ?s))
-    		 ((knowsNothing ?s) (knowsSubject ?t))
-    		 ((!learn ?s ?t) (graduateHonestly ?s))
-;			 (:constraint (:always (forall (?s) (hasMoney ?s) (not (isDishonest ?s)))))
-;			 (:constraint (:always (not (isDishonest ?s))))
-;			 (:constraint (not (isDishonest ?s)))
-    		 )
+    (:method (graduate ?s)
+             ((knowsSubject ?s))
+             ((graduateHonestly ?s))
+             ((knowsNothing ?s) (knowsSubject ?t))
+             ((!learn ?s ?t) (graduateHonestly ?s))
+;             (:constraint (:always (forall (?s) (hasMoney ?s) (not (isDishonest ?s)))))
+;             (:constraint (:always (not (isDishonest ?s))))
+;             (:constraint (not (isDishonest ?s)))
+             )
   
     ;; Goal Method 2, ?s is a student
-	(:method (graduate ?s)
-    		 ()
-    		 ((graduateDishonestly ?s))
-;			 (:constraint (:always (forall (?s) (hasMoney ?s) (not (isDishonest ?s)))))
-;			 (:constraint (:always (not (isDishonest ?s))))
-;			 (:constraint (not (isDishonest ?s)))
-    		 )
+    (:method (graduate ?s)
+             ()
+             ((graduateDishonestly ?s))
+;             (:constraint (:always (forall (?s) (hasMoney ?s) (not (isDishonest ?s)))))
+;             (:constraint (:always (not (isDishonest ?s))))
+;             (:constraint (not (isDishonest ?s)))
+             )
 
-	;; Graduate without cheating    		 
-	(:method (graduateHonestly ?s)
-    		 ((knowsSubject ?s) (not (knowsNothing ?s)))
-    		 ((!study ?s) (!writeExam ?s)))
+    ;; Graduate without cheating             
+    (:method (graduateHonestly ?s)
+             ((knowsSubject ?s) (not (knowsNothing ?s)))
+             ((!study ?s) (!writeExam ?s)))
   
-  	;; Graduate with a little assistance
-	(:method (graduateDishonestly ?s)
-    		 ((hasMoney ?s) (knowsAnswer ?c))
-    		 ((!cheat ?s ?c) (!writeExam ?s)))
+      ;; Graduate with a little assistance
+    (:method (graduateDishonestly ?s)
+             ((hasMoney ?s) (knowsAnswer ?c))
+             ((!cheat ?s ?c) (!writeExam ?s)))
   
-  	;; Graduate with a little assistance
-	(:method (graduateDishonestly ?s)
-    		 ((hasMoney ?v) (knowsAnswer ?c))
-    		 ((!steal ?s ?v) (graduateDishonestly ?s)))
-  
-  
-  ; Axiom for sameness testing
-  (:- (same ?x ?x) nil)
+      ;; Graduate with a little assistance
+    (:method (graduateDishonestly ?s)
+             ((hasMoney ?v) (knowsAnswer ?c))
+             ((!steal ?s ?v) (graduateDishonestly ?s)))
   
   
-;	(:constraint (:always (forall (?x) (knowsAnswer ?x) (:next (not (isDishonest ?x))))))
-;	(:constraint (:always (forall (?s) (knowsAnswer ?s) (not (isDishonest ?s)))))
-;	(:constraint (:always (forall (?s) (hasMoney ?s) (not (isDishonest ?s)))))
-;	(:constraint (:eventually (knowsSubject Nat)))
-;	(:constraint (:always (not (hasMoney Nat))))
+    ; Axiom for sameness testing
+    (:- (same ?x ?x) nil)
+  
+  
+;    (:constraint (:always (forall (?x) (knowsAnswer ?x) (:next (not (isDishonest ?x))))))
+;    (:constraint (:always (forall (?s) (knowsAnswer ?s) (not (isDishonest ?s)))))
+;    (:constraint (:always (forall (?s) (hasMoney ?s) (not (isDishonest ?s)))))
+;    (:constraint (:eventually (knowsSubject Nat)))
+;    (:constraint (:always (not (hasMoney Nat))))
 
   )
 )
