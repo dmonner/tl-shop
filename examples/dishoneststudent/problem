@@ -4,7 +4,7 @@
   	(knowsNothing Nat) 
   	(hasMoney     Derek)
   	(hasMoney     Dana)
-  	(knowsSubject  Dana)
+  	(knowsSubject Dana)
   	(knowsAnswer  Derek)
   ) 
   ( 
@@ -12,5 +12,5 @@
   	(graduate Nat) 
   )
   
-;  	(:constraint (:always (not (hasMoney Nat))))
+;  	 (:constraint (:always (not (hasMoney Nat))))
 )

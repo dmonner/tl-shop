@@ -1,19 +1,19 @@
 \documentclass[12pt]{article}
 \usepackage{amsmath, amssymb, amsthm, alltt, graphicx, subfigure}
-\usepackage[top=1.5in, bottom=1.25in, left=1.25in, right=1.25in]{geometry}
+\usepackage[top=1.25in, bottom=1.25in, left=1in, right=1in]{geometry}
 \begin{document}
 \input{./title.tex}
 
 \section{Introduction}
 Hierarchal Task Network (HTN) planning requires describing a goal state as a 
-set of high-level tasks which will achieve that state, and involves achieving 
-the required tasks by recursively breaking them into smaller and smaller 
-subtasks \cite{nau2004apt}. Put simply, HTN planning, describes in detail a 
-subset of  solutions the planner is allowed to try. On the other hand, the 
-control rule planning paradigm is a standard forward search procedure enhanced 
-by control rules written in a modal logic such as Linear Temporal Logic (LTL) 
-that are used to prune the search space by describing which states are 
-undesirable or will never lead to a solution \cite{nau2004apt}. In short, 
+set of high-level tasks which will bring about that state, and involves 
+achieving the required tasks by recursively breaking them into smaller and 
+smaller subtasks \cite{nau2004apt}. Put simply, HTN planning, describes in 
+detail a subset of  solutions the planner is allowed to try. On the other hand, 
+the control rule planning paradigm is a standard forward search procedure 
+enhanced by control rules written in a modal logic such as Linear Temporal 
+Logic (LTL) that are used to prune the search space by describing which states 
+are undesirable or will never lead to a solution \cite{nau2004apt}. In short, 
 control rule planning tells the planner which branches not to follow.
 
 The product of this work, a planner called TL-SHOP, combines these two 
@@ -65,14 +65,19 @@ The following sections will cover the main pieces of the implementation in
 detail, as well as some limitations of the software.
 
 \subsection{Extended Domain and Problem Parsers}
-The domain and problem input is provided using a lisp-like syntax which is
-parsed by an ANTLR parser. TL-SHOP builds on the syntax in JSHOP2 and follows
-many of the same conventions. Each new constraint is prefixed by a $constraint$
-label followed by a logic expression optionally including temporal operators. The temporal
-logic operators are symbolized by $next$, $always$, $until$, and $eventually$
-labels. These five new labels are prefixed by a single colon to distinguish them
-as keywords. In the example above, the postcondition $\square on(a, b)$ would be
-encoded as $(:constraint (:always (on ?a ?b)))$
+The domain and problem input is provided using a lisp-like syntax which is 
+parsed by an ANTLR parser. TL-SHOP builds on the syntax in JSHOP2 and follows 
+many of the same conventions. Each constraint is comprised of a 
+\texttt{constraint} label followed by a logical expression optionally including 
+temporal operators. The temporal logic operators are symbolized by 
+\texttt{next}, \texttt{always}, \texttt{until}, and \texttt{eventually} labels. 
+These five new labels are prefixed by a single colon to distinguish them as 
+keywords. In the example above, the postcondition $\square on(a, b)$ would be 
+encoded as:
+
+\begin{verbatim}
+(:constraint (:always (on ?a ?b)))
+\end{verbatim}
 
 \subsection{Linear Temporal Logic Inference Engine}
 Our LTL inference engine is based on the $progress$ function from 
@@ -98,6 +103,7 @@ LTL formulas computed by the LTL inference engine do not lend themselves to
 compilation in any obvious way. As such, the LTL inference engine in TL-SHOP 
 takes a considerable performance hit because it needs to allocate and 
 deallocate memory during the planning process, which JSHOP2 managed to avoid.
+This fact renders TL-SHOP uncompetitve with JSHOP2 on large problems.
 
 The LTL operators $\forall$ (``forall'') and $\exists$ (``exists'') take as 
 their first argument not an unbound variable, but instead a logical atom that 
@@ -109,7 +115,10 @@ TL-SHOP does not support function symbols in LTL expressions, as we lacked
 enough time to properly implement such functionality.
 
 \section{Examples}
-
+Included with TL-SHOP are two new examples, \texttt{basicltl} and 
+\texttt{dishoneststudent}. They are meant to demonstrate how 
+constraints can be used in TL-SHOP to prune plans. See the domain specification 
+file of each for more details.
 
 \section{Conclusion}
 TL-SHOP does what we set out to do---combine Hierarchal Task Network planning 
