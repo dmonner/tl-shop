@@ -1,6 +1,6 @@
 \documentclass[12pt]{article}
 \usepackage{amsmath, amssymb, amsthm, alltt, graphicx, subfigure}
-\usepackage[top=1.25in, bottom=1.25in, left=1in, right=1in]{geometry}
+\usepackage[top=1.25in, bottom=1.25in, left=1.25in, right=1.25in]{geometry}
 \begin{document}
 \input{./title.tex}
 
@@ -79,10 +79,11 @@ encoded as:
 (:constraint (:always (on ?a ?b)))
 \end{verbatim}
 
-When this statement is used as a postcondition to a method or operator, the
-variables are bound to the parameters of the method or operator. If the
-statement is part of the domain or problem specification, only ground atoms or variables
-enclosed in a \texttt{forall} or \texttt{exists} expressions are allowed.
+When this statement is used as a postcondition to a method or operator, the 
+variables are bound to the parameters of the method or operator. If the 
+statement is part of the domain or problem specification, only ground atoms or 
+variables enclosed in a \texttt{forall} or \texttt{exists} expressions are 
+allowed.
 
 \subsection{Linear Temporal Logic Inference Engine}
 Our LTL inference engine is based on the $progress$ function from 
@@ -107,7 +108,7 @@ that the HTN problems were in JSHOP2. In fact, we feel that the progressions of
 LTL formulas computed by the LTL inference engine do not lend themselves to 
 compilation in any obvious way. As such, the LTL inference engine in TL-SHOP 
 takes a considerable performance hit because it needs to allocate and 
-deallocate memory during the planning process, which JSHOP2 managed to avoid.
+deallocate memory during the planning process, which JSHOP2 managed to avoid. 
 This fact renders TL-SHOP uncompetitve with JSHOP2 on large problems.
 
 The LTL operators $\forall$ (``forall'') and $\exists$ (``exists'') take as 
@@ -120,11 +121,14 @@ TL-SHOP does not support function symbols in LTL expressions, as we lacked
 enough time to properly implement such functionality.
 
 \section{Examples}
-The source and examples for TL-SHOP are at \texttt{http://code.google.com/p/tl-shop/}.
-Included with TL-SHOP are two new examples, \texttt{basicltl} and
- \texttt{dishoneststudent}. They are meant to demonstrate how 
-constraints can be used in TL-SHOP to prune plans. See the domain specification 
-file of each for more details.
+The source for TL-SHOP is available at:
+\begin{verbatim}
+http://code.google.com/p/tl-shop/downloads/list
+\end{verbatim}
+Included with TL-SHOP 
+are two new examples, \texttt{basicltl} and \texttt{dishoneststudent}. They are 
+meant to demonstrate how constraints can be used in TL-SHOP to prune plans. See 
+the domain specification file of each for more details.
 
 \section{Conclusion}
 TL-SHOP does what we set out to do---combine Hierarchal Task Network planning 
