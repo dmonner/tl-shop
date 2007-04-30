@@ -1,5 +1,6 @@
 @echo off
 
+if (%1) == (p) goto :CPath
 if (%1) == (c) goto :Compile
 if (%1) == (d) goto :Doc
 if (%1) == (1) goto :Run1
@@ -16,6 +17,10 @@ if (%1) == (11) goto :Run11
 if (%1) == (12) goto :Run12
 
 goto :Compile
+
+:CPath
+  SET CLASSPATH=%CLASSPATH%;%CD%\bin\antlr.jar;%CD%\bin\JSHOP2.jar
+  goto :End
 
 :Compile
   cd src\JSHOP2
@@ -182,7 +187,7 @@ goto :Compile
   cd ..\..
   goto :End
 
-:Run10
+:Run12
   cd examples\dishoneststudent
   java JSHOP2.InternalDomain domainspec
   java JSHOP2.InternalDomain -r problem
