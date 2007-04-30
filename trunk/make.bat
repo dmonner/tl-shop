@@ -12,6 +12,8 @@ if (%1) == (7) goto :Run7
 if (%1) == (8) goto :Run8
 if (%1) == (9) goto :Run9
 if (%1) == (10) goto :Run10
+if (%1) == (11) goto :Run11
+if (%1) == (12) goto :Run12
 
 goto :Compile
 
@@ -163,6 +165,32 @@ goto :Compile
   del blocks.java
   del blocks.txt
   del smallproblem.java
+  del *.class
+  cd ..\..
+  goto :End
+
+:Run11
+  cd examples\basicltl
+  java JSHOP2.InternalDomain basicltl
+  java JSHOP2.InternalDomain -ra problem
+  javac problem.java
+  java problem
+  del basicltl.java
+  del basicltl.txt
+  del problem.java
+  del *.class
+  cd ..\..
+  goto :End
+
+:Run10
+  cd examples\dishoneststudent
+  java JSHOP2.InternalDomain domainspec
+  java JSHOP2.InternalDomain -r problem
+  javac problem.java
+  java problem
+  del domainspec.java
+  del domainspec.txt
+  del problem.java
   del *.class
   cd ..\..
   goto :End

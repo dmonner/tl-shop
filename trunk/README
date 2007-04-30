@@ -1,10 +1,15 @@
-How to install and run JSHOP2:
+How to install and run TL-SHOP:
 
 Make sure that Java is installed fully on your computer.
 
 After unzipping the JSHOP2 zipped file in any directory, set the CLASSPATH
-environment variable to include (replacing JSHOP2_DIRECTORY with the directory
-where JSHOP2 is unzipped):
+environment variable by executing the following command from the directory 
+where JSHOP2 is installed:
+
+source classpath.sh
+
+Or, add the following to your CLASSPATH environment variable via other means 
+(replacing JSHOP2_DIRECTORY with the directory where JSHOP2 is unzipped):
 
 - in Windows:
   JSHOP2_DIRECTORY\bin\antlr.jar;JSHOP2_DIRECTORY\bin\JSHOP2.jar;.
