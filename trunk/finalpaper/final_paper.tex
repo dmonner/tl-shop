@@ -79,6 +79,11 @@ encoded as:
 (:constraint (:always (on ?a ?b)))
 \end{verbatim}
 
+When this statement is used as a postcondition to a method or operator, the
+variables are bound to the parameters of the method or operator. If the
+statement is part of the domain or problem specification, only ground atoms or variables
+enclosed in a \texttt{forall} or \texttt{exists} expressions are allowed.
+
 \subsection{Linear Temporal Logic Inference Engine}
 Our LTL inference engine is based on the $progress$ function from 
 \cite{nau2004apt}. Applying an operator during the HTN planning process changes 
@@ -115,8 +120,9 @@ TL-SHOP does not support function symbols in LTL expressions, as we lacked
 enough time to properly implement such functionality.
 
 \section{Examples}
-Included with TL-SHOP are two new examples, \texttt{basicltl} and 
-\texttt{dishoneststudent}. They are meant to demonstrate how 
+The source and examples for TL-SHOP are at \texttt{http://code.google.com/p/tl-shop/}.
+Included with TL-SHOP are two new examples, \texttt{basicltl} and
+ \texttt{dishoneststudent}. They are meant to demonstrate how 
 constraints can be used in TL-SHOP to prune plans. See the domain specification 
 file of each for more details.
 
