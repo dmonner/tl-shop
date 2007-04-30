@@ -2,33 +2,37 @@ How to install and run TL-SHOP:
 
 Make sure that Java is installed fully on your computer.
 
-After unzipping the JSHOP2 zipped file in any directory, set the CLASSPATH
+After unzipping the TL-SHOP zipped file in any directory, set the CLASSPATH
 environment variable by executing the following command from the directory 
-where JSHOP2 is installed:
+where TL-SHOP is installed:
 
-source classpath.sh
+	source classpath.sh
+
+Or, on Windows, just run from the directory where TL-SHOP is installed:
+
+	make p
 
 Or, add the following to your CLASSPATH environment variable via other means 
-(replacing JSHOP2_DIRECTORY with the directory where JSHOP2 is unzipped):
+(replacing TL-SHOP_DIRECTORY with the directory where TL-SHOP is unzipped):
 
 - in Windows:
-  JSHOP2_DIRECTORY\bin\antlr.jar;JSHOP2_DIRECTORY\bin\JSHOP2.jar;.
+  TL-SHOP_DIRECTORY\bin\antlr.jar;JSHOP2_DIRECTORY\bin\JSHOP2.jar;.
 
 - in UNIX:
-  JSHOP2_DIRECTORY/bin/antlr.jar:JSHOP2_DIRECTORY/bin/JSHOP2.jar:.
+  TL-SHOP_DIRECTORY/bin/antlr.jar:JSHOP2_DIRECTORY/bin/JSHOP2.jar:.
 
 This is the environment variable Java uses to looks for Java ARchive (jar)
-files used by JSHOP2.
+files used by TL-SHOP.
 
 After making sure the CLASSPATH variable is correctly set, any of these
 commands can be used at the command line:
 
 - make
   or
-  make c : To compile the JSHOP2 source files and make the needed .jar files.
-           This has to be done before JSHOP2 can be run.
+  make c : To compile the TL-SHOP source files and make the needed .jar files.
+           This has to be done before TL-SHOP can be run.
 
-- make d : To make the HTML JSHOP2 package documentation out of the source
+- make d : To make the HTML TL-SHOP package documentation out of the source
            files.
 
 - make 1 : To run the first example, the blocks world domain.
@@ -62,9 +66,9 @@ The important files and directories in this release of JSHOP2:
 ./Makefile : The make file for Unix.
 ./README   : This file.
 ./JSHOP2.pdf : The JSHOP2 user's manual.
-./src/JSHOP2 : The source code of the JSHOP2 package.
+./src/JSHOP2 : The source code of the TL-SHOP package.
 ./bin        : The directory where the compiled jar files are stored.
-./doc/index.html : The HTML package documentation of JSHOP2.
+./doc/index.html : The HTML package documentation of TL-SHOP.
 ./examples/blocks : The blocks world domain featuring list manipulation in
                     JSHOP2, use of axioms, and on-the-fly creation of the
                     logical atoms at run time.
