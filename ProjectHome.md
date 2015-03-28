@@ -1,0 +1,1 @@
+TL-SHOP is a group project for the Spring 2007 section of CMSC722 at the University of Maryland College Park. The participants of the project are Nat Ayewah and Derek Monner. The goal of the project is to add control rules and extended goals in Linear Temporal Logic to the JSHOP2 Hierarchal Task Network Planner, and analyze the results.
